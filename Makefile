@@ -15,7 +15,8 @@ LEXER_SRCS	=		$(wildcard $(SRCS_DIR)/lexer/*.c) \
 					$(wildcard $(USE_CASE_DIR)/lexer/*.c) \
 					$(wildcard $(ADAPT_CLI_DIR)/*.c) \
 					$(wildcard $(INFRA_DIR)/*.c)
-PARSER_SRCS	=		$(wildcard $(USE_CASE_DIR)/parser/*.c)
+PARSER_SRCS	=		$(wildcard $(SRCS_DIR)/adapters/parser/*.c)
+ENTITIES_SRCS	=	$(wildcard $(SRCS_DIR)/entities/*.c)
 ASSIGNMENT_SRCS	=	$(wildcard $(USE_CASE_DIR)/assignment/*.c)
 ENV_SRCS	=		$(wildcard $(DOMAIN_DIR)/env/*.c)
 EXIT_SRCS	=		$(wildcard $(USE_CASE_DIR)/exit/*.c)
@@ -24,6 +25,7 @@ UTILS_SRCS	=	$(wildcard $(UTILS_DIR)/libft_custom/*.c)
 # ソースファイル一覧
 SRCS			=	$(LEXER_SRCS) \
 					$(PARSER_SRCS) \
+					$(ENTITIES_SRCS) \
 					$(UTILS_SRCS) \
 					$(ENV_SRCS) \
 					$(BUILTIN_SRCS) \
@@ -86,6 +88,7 @@ TESTS_DIR		=	tests
 TEST_SRCS		=	$(shell find $(TESTS_DIR) -name '*.c' -not -path '$(TESTS_DIR)/parser/*') \
 					$(LEXER_SRCS) \
 					$(PARSER_SRCS) \
+					$(ENTITIES_SRCS) \
 					$(UTILS_SRCS) \
 					$(ASSIGNMENT_SRCS) \
 					$(ENV_SRCS) \
@@ -123,23 +126,23 @@ test_operators: $(TESTS_DIR)/parser/test_operators
 test_heredoc: $(TESTS_DIR)/parser/test_heredoc
 	./$(TESTS_DIR)/parser/test_heredoc
 
-$(TESTS_DIR)/parser/test_simple_command: $(LIBFT_A) $(TESTS_DIR)/parser/test_simple_command.c $(USE_CASE_DIR)/parser/parser.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_simple_command.c $(USE_CASE_DIR)/parser/parser.c -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_simple_command: $(LIBFT_A) $(TESTS_DIR)/parser/test_simple_command.c $(PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_simple_command.c $(PARSER_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_quote_handling: $(LIBFT_A) $(TESTS_DIR)/parser/test_quote_handling.c $(USE_CASE_DIR)/parser/parser.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_quote_handling.c $(USE_CASE_DIR)/parser/parser.c -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_quote_handling: $(LIBFT_A) $(TESTS_DIR)/parser/test_quote_handling.c $(PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_quote_handling.c $(PARSER_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_pipe: $(LIBFT_A) $(TESTS_DIR)/parser/test_pipe.c $(USE_CASE_DIR)/parser/parser.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_pipe.c $(USE_CASE_DIR)/parser/parser.c -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_pipe: $(LIBFT_A) $(TESTS_DIR)/parser/test_pipe.c $(PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_pipe.c $(PARSER_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_redirection: $(LIBFT_A) $(TESTS_DIR)/parser/test_redirection.c $(USE_CASE_DIR)/parser/parser.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_redirection.c $(USE_CASE_DIR)/parser/parser.c -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_redirection: $(LIBFT_A) $(TESTS_DIR)/parser/test_redirection.c $(PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_redirection.c $(PARSER_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_operators: $(LIBFT_A) $(TESTS_DIR)/parser/test_operators.c $(USE_CASE_DIR)/parser/parser.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_operators.c $(USE_CASE_DIR)/parser/parser.c -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_operators: $(LIBFT_A) $(TESTS_DIR)/parser/test_operators.c $(PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_operators.c $(PARSER_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_heredoc: $(LIBFT_A) $(TESTS_DIR)/parser/test_heredoc.c $(USE_CASE_DIR)/parser/parser.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_heredoc.c $(USE_CASE_DIR)/parser/parser.c -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_heredoc: $(LIBFT_A) $(TESTS_DIR)/parser/test_heredoc.c $(PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_heredoc.c $(PARSER_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
 testclean:
 	@$(RM) $(TEST_OBJS) $(TEST_NAME)

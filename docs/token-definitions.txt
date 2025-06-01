@@ -1,0 +1,78 @@
+/* トークンタイプの定義 */
+typedef enum {
+    TOKEN_WORD,           // 一般的な単語（コマンド名、引数など）
+    TOKEN_ASSIGNMENT,     // 変数代入（name=value）
+    TOKEN_OPERATOR,       // ||, &&, ;, & などの演算子
+    TOKEN_REDIRECT,       // >, >>, <, << などのリダイレクト
+    TOKEN_PIPE,           // パイプ |
+    TOKEN_LPAREN,         // 左括弧 (
+    TOKEN_RPAREN,         // 右括弧 )
+    TOKEN_LBRACE,         // 左中括弧 {
+    TOKEN_RBRACE,         // 右中括弧 }
+    TOKEN_IF,             // if キーワード
+    TOKEN_THEN,           // then キーワード
+    TOKEN_ELSE,           // else キーワード
+    TOKEN_ELIF,           // elif キーワード
+    TOKEN_FI,             // fi キーワード
+    TOKEN_DO,             // do キーワード
+    TOKEN_DONE,           // done キーワード
+    TOKEN_FOR,            // for キーワード
+    TOKEN_WHILE,          // while キーワード
+    TOKEN_UNTIL,          // until キーワード
+    TOKEN_CASE,           // case キーワード
+    TOKEN_ESAC,           // esac キーワード
+    TOKEN_IN,             // in キーワード
+    TOKEN_FUNCTION,       // function キーワード
+    TOKEN_NEWLINE,        // 改行
+    TOKEN_EOF,            // 入力の終端
+    TOKEN_ERROR           // エラートークン
+} TokenType;
+
+/* リダイレクトのタイプ */
+typedef enum {
+    REDIR_NONE,
+    REDIR_INPUT,          // 
+    REDIR_OUTPUT,         // >
+    REDIR_APPEND,         // >>
+    REDIR_HEREDOC,        // 
+    REDIR_HERESTRING,     // <
+    REDIR_DUPLICATING_INPUT,  // <&
+    REDIR_DUPLICATING_OUTPUT, // >&
+    REDIR_OUTPUT_ERROR,       // &>
+    // その他必要なリダイレクトタイプ
+} RedirectType;
+
+/* トークン構造体 */
+typedef struct Token {
+    TokenType type;      // トークンの種類
+    char *text;          // トークンの元のテキスト
+    int length;          // テキストの長さ
+    
+    union {
+        char *word;      // TOKEN_WORD の場合の単語
+        struct {
+            char *name;  // 変数名
+            char *value; // 変数値
+        } assignment;    // TOKEN_ASSIGNMENT の場合
+        struct {
+            RedirectType redirect_type; // リダイレクトの種類
+            int n;                      // ファイルディスクリプタ
+        } redirect;     // TOKEN_REDIRECT の場合
+    } value;
+    
+    int line_number;    // 行番号（エラー報告用）
+    int column;         // 列番号（エラー報告用）
+    
+    struct Token *next; // トークンリストを作る場合
+} Token;
+
+/* トークンリスト管理構造体 */
+typedef struct {
+    Token *head;        // 先頭トークン
+    Token *current;     // 現在処理中のトークン
+    int count;          // トークン数
+    // エラー情報
+    char *error_message;
+    int error_line;
+    int error_column;
+} TokenStream;
