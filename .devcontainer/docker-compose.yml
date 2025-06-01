@@ -1,0 +1,14 @@
+version: '3'
+services:
+  my_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ../:/workspace  # ホストディレクトリとコンテナ内ディレクトリをマウント
+    stdin_open: true
+    tty: true
