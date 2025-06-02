@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "../../../include/interfaces/parser_internal.h"
+#include "../../../include/usecase/parser/parser_internal.h"
 #include "../../../src/utils/libft/libft.h"
 
 /* パースエラーを設定 */

@@ -14,8 +14,8 @@
 #define PARSER_INTERNAL_H
 
 #include "parser_interface.h"
-#include "../entities/command.h"
-#include "../domain/token.h"
+#include "../../domain/command.h"
+#include "../../domain/token.h"
 
 /* Factory functions */
 t_parse_result *create_parse_result(void);

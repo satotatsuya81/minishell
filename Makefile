@@ -5,32 +5,43 @@ SRCS_DIR = src
 INCLUDES_DIR = include
 DOMAIN_DIR = $(SRCS_DIR)/domain
 USE_CASE_DIR = $(SRCS_DIR)/usecase
-INFRA_DIR = $(SRCS_DIR)/infrastructure
-ADAPT_CLI_DIR = $(SRCS_DIR)/adapters/cli
+ADAPTERS_DIR = $(SRCS_DIR)/adapters
 UTILS_DIR = $(SRCS_DIR)/utils
 
-LEXER_SRCS	=		$(wildcard $(SRCS_DIR)/lexer/*.c) \
-					$(wildcard $(DOMAIN_DIR)/lexer/*.c) \
-					$(wildcard $(USE_CASE_DIR)/lexer/handler/*.c) \
-					$(wildcard $(USE_CASE_DIR)/lexer/*.c) \
-					$(wildcard $(ADAPT_CLI_DIR)/*.c) \
-					$(wildcard $(INFRA_DIR)/*.c)
-PARSER_SRCS	=		$(wildcard $(SRCS_DIR)/adapters/parser/*.c)
-ENTITIES_SRCS	=	$(wildcard $(SRCS_DIR)/entities/*.c)
-ASSIGNMENT_SRCS	=	$(wildcard $(USE_CASE_DIR)/assignment/*.c)
-ENV_SRCS	=		$(wildcard $(DOMAIN_DIR)/env/*.c)
-EXIT_SRCS	=		$(wildcard $(USE_CASE_DIR)/exit/*.c)
+# Domain layer sources
+DOMAIN_SRCS	=		$(wildcard $(DOMAIN_DIR)/token/*.c) \
+					$(wildcard $(DOMAIN_DIR)/command/*.c) \
+					$(wildcard $(DOMAIN_DIR)/env/*.c)
+
+# Use case layer sources  
+LEXER_SRCS	=		$(wildcard $(USE_CASE_DIR)/lexer/*.c) \
+					$(wildcard $(USE_CASE_DIR)/lexer/handler/*.c)
+PARSER_SRCS	=		$(wildcard $(USE_CASE_DIR)/parser/*.c)
+EXECUTOR_SRCS	=	$(wildcard $(USE_CASE_DIR)/executor/*.c)
 BUILTIN_SRCS	=	$(wildcard $(USE_CASE_DIR)/builtin/*.c)
-UTILS_SRCS	=	$(wildcard $(UTILS_DIR)/libft_custom/*.c)
+ASSIGNMENT_SRCS	=	$(wildcard $(USE_CASE_DIR)/assignment/*.c)
+EXIT_SRCS	=		$(wildcard $(USE_CASE_DIR)/exit/*.c)
+
+# Adapters layer sources
+ADAPT_CLI_SRCS	=	$(wildcard $(ADAPTERS_DIR)/cli/*.c)
+ADAPT_SYS_SRCS	=	$(wildcard $(ADAPTERS_DIR)/system/*.c)
+ADAPT_IO_SRCS	=	$(wildcard $(ADAPTERS_DIR)/io/*.c)
+
+# Utilities
+UTILS_SRCS	=		$(wildcard $(UTILS_DIR)/libft_custom/*.c)
+
 # ソースファイル一覧
-SRCS			=	$(LEXER_SRCS) \
+SRCS			=	$(DOMAIN_SRCS) \
+					$(LEXER_SRCS) \
 					$(PARSER_SRCS) \
-					$(ENTITIES_SRCS) \
-					$(UTILS_SRCS) \
-					$(ENV_SRCS) \
+					$(EXECUTOR_SRCS) \
 					$(BUILTIN_SRCS) \
 					$(ASSIGNMENT_SRCS) \
 					$(EXIT_SRCS) \
+					$(ADAPT_CLI_SRCS) \
+					$(ADAPT_SYS_SRCS) \
+					$(ADAPT_IO_SRCS) \
+					$(UTILS_SRCS) \
 					$(SRCS_DIR)/main.c
 OBJS			=	$(SRCS:%.c=%.o)
 LIBFT_DIR		=	$(SRCS_DIR)/utils/libft
@@ -86,14 +97,17 @@ TESTS_DIR		=	tests
 
 
 TEST_SRCS		=	$(shell find $(TESTS_DIR) -name '*.c' -not -path '$(TESTS_DIR)/parser/*') \
+					$(DOMAIN_SRCS) \
 					$(LEXER_SRCS) \
 					$(PARSER_SRCS) \
-					$(ENTITIES_SRCS) \
-					$(UTILS_SRCS) \
-					$(ASSIGNMENT_SRCS) \
-					$(ENV_SRCS) \
+					$(EXECUTOR_SRCS) \
 					$(BUILTIN_SRCS) \
-					$(EXIT_SRCS)
+					$(ASSIGNMENT_SRCS) \
+					$(EXIT_SRCS) \
+					$(ADAPT_CLI_SRCS) \
+					$(ADAPT_SYS_SRCS) \
+					$(ADAPT_IO_SRCS) \
+					$(UTILS_SRCS)
 TEST_OBJS		=	$(TEST_SRCS:%.c=%.o)
 TEST_NAME		=	unit_tests
 TEST_FLAGS		=	$(CFLAGS) -I$(TESTS_DIR)

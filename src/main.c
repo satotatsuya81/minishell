@@ -21,8 +21,8 @@
 #include "usecase/lexer/token_printer.h"
 #include "usecase/lexer/lexer.h"
 #include "usecase/builtin/builtin_commands.h"
-#include "interfaces/parser_interface.h"
-#include "entities/command.h"
+#include "usecase/parser/parser_interface.h"
+#include "domain/command.h"
 
 static char	**make_argv(t_token *token)
 {

@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../../include/entities/command.h"
+#include "../../../include/domain/command.h"
 
 void free_pipeline(t_pipeline *pipeline)
 {

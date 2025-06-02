@@ -1,8 +1,8 @@
 #ifndef PARSER_INTERFACE_H
 #define PARSER_INTERFACE_H
 
-#include "../domain/token.h"
-#include "../entities/command.h"
+#include "../../domain/token.h"
+#include "../../domain/command.h"
 
 /* パース結果構造体 */
 typedef struct s_parse_result {

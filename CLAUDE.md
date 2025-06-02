@@ -20,9 +20,10 @@ This is a minishell project (42 school curriculum) that integrates components fr
 
 2. **Parser** (from minishell65)
    - Advanced recursive descent parser
-   - Supports: pipes, redirections, operators (if lexer provides tokens)
+   - Fully implemented: pipes, redirections, operators (&&, ||, ;), heredoc
    - Location: `src/adapters/parser/`
-   - Creates AST (Abstract Syntax Tree)
+   - Creates complete AST (Abstract Syntax Tree)
+   - ⚠️ Note: Parser can handle all operators but lexer doesn't tokenize them yet
 
 3. **Builtins** (from tatsato)
    - All 7 required commands implemented: `cd`, `echo`, `env`, `exit`, `export`, `pwd`, `unset`
@@ -43,6 +44,10 @@ This is a minishell project (42 school curriculum) that integrates components fr
    - Lexer doesn't recognize `&&`, `||`, `;`
    - Parser can handle them if lexer provides TOKEN_OPERATOR
 
+3. **Token Implementation**
+   - `src/entities/token.c` is missing (may contain token manipulation functions)
+   - Need to verify if this functionality exists elsewhere or needs to be implemented
+
 ## Build Commands
 
 ```bash
@@ -55,7 +60,7 @@ make test_parser       # Run parser unit tests (from minishell65)
 
 ## Architecture
 
-### Directory Structure
+### Current Directory Structure
 ```
 minishell_tatsato/
 ├── include/
@@ -84,11 +89,64 @@ minishell_tatsato/
     └── parser/         # Parser tests
 ```
 
+### Target Directory Structure (Planned Refactoring)
+See `doc/minishell-directory-structure.txt` for the planned Clean Architecture-based structure.
+
 ### Data Flow
 ```
 Input → Lexer → Tokens → Parser → AST → Executor → Output
          ✓        ✓        ✓       ✓       ❌
 ```
+
+### Parser Implementation Details
+
+#### AST Structure
+```c
+// Command structure
+typedef struct s_cmd {
+    char **argv;                   // Command and arguments array
+    struct s_cmd_redirect *redirects;  // Redirection list
+    struct s_cmd *next;           // Next command (for pipes)
+} t_cmd;
+
+// Redirection structure
+typedef struct s_cmd_redirect {
+    t_redirect_type type;         // Redirection type
+    char *file;                   // File name
+    int fd;                       // File descriptor (if needed)
+    struct s_cmd_redirect *next;  // Next redirection
+} t_cmd_redirect;
+
+// Pipeline structure (command chain)
+typedef struct s_pipeline {
+    t_cmd *cmds;                  // Command list
+    struct s_pipeline *next;      // Next pipeline (operators)
+    int connector;                // Connector type (AND, OR, SEMICOLON)
+} t_pipeline;
+```
+
+#### Parser Interface
+```c
+// Main parse function
+t_pipeline *parse(t_token_stream *tokens);
+
+// Parse result with error info
+typedef struct s_parse_result {
+    t_pipeline *ast;              // Parsed AST
+    char *error_msg;              // Error message
+    int error_line;               // Error line
+    int error_column;             // Error column
+} t_parse_result;
+```
+
+#### Parser Status
+- ✅ Simple commands
+- ✅ Commands with arguments
+- ✅ Pipes (single and multiple)
+- ✅ Redirections (<, >, >>)
+- ✅ Operators (&&, ||, ;)
+- 🚧 Heredoc (<<) - In progress
+- ❌ Error handling improvements needed
 
 ### Key Data Structures
 
@@ -135,7 +193,11 @@ typedef struct s_pipeline {
 
 3. **Signal Handling** (Medium Priority)
    - Implement Ctrl+C, Ctrl+D, Ctrl+\
-   - Add to `src/frameworks/` or similar
+   - Add to `src/adapters/system/` (planned location)
+
+4. **Missing Parser Tests Migration**
+   - Parser tests exist in `tests/parser/` but may need updates
+   - Verify all tests compile and pass with current implementation
 
 ### Testing Approach
 

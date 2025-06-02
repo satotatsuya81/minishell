@@ -26,3 +26,4 @@ echo -e "\n---\n"
 
 echo "Test 5: Exit command"
 echo "exit" | ./minishell | head -20
+
