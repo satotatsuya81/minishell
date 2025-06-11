@@ -6,7 +6,7 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 08:17:10 by tatsato           #+#    #+#             */
-/*   Updated: 2025/06/01 17:46:52 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/08 18:34:45 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,11 @@
 #include "usecase/parser/parser_interface.h"
 #include "domain/command.h"
 
-static char	**make_argv(t_token *token)
+static char**make_argv(t_token *token)
 {
-	char	**argv;
-	int		count;
-	t_token	*current;
+	char**argv;
+	int count;
+	t_token* current;
 
 	if (!token)
 		return (NULL);
@@ -62,32 +62,75 @@ static char	**make_argv(t_token *token)
 	return (argv);
 }
 
-static void	print_parse_result(t_parse_result *result)
+static void print_parse_result(t_parse_result *result)
 {
 	if (!result) {
 		printf("❌ Parse failed: result is NULL\n");
 		return;
 	}
-	
 	if (result->error_msg) {
-		printf("❌ Parse error: %s (line %d, column %d)\n", 
-			result->error_msg, result->error_line, result->error_column);
+		printf("❌ Parse error: %s (line %d, column %d)\n",
+		result->error_msg, result->error_line, result->error_column);
 		return;
 	}
-	
 	if (!result->ast) {
 		printf("❌ Parse failed: AST is NULL\n");
 		return;
 	}
-	
 	printf("✅ Parse successful! AST created.\n");
 }
 
-static void	execute_simple_command(t_cmd *cmd, t_env_var **env)
+/* 新規追加: ASTの内容を詳細にデバッグ出力する関数 */
+static void print_ast_debug(t_pipeline *ast, int depth)
+{
+	int i;
+	// インデント
+	for(i = 0; i < depth; i++)
+		printf("\t");
+	if (!ast) {
+		printf("NULL\n");
+		return;
+	}
+	printf("Pipeline at %p\n", ast);
+	if (ast->cmds) {
+		for(i = 0; i < depth; i++)
+			printf("\t");
+		printf("Cmds:\n");
+		int j = 0;
+		while (ast->cmds->argv && ast->cmds->argv[j]) {
+			for(i = 0; i < depth + 1; i++)
+				printf("\t");
+			printf("argv[%d]: %s\n", j, ast->cmds->argv[j]);
+			j++;
+		}
+		if (j == 0) {
+			for(i = 0; i < depth + 1; i++)
+				printf("\t");
+			printf("No arguments.\n");
+		}
+	} else {
+		for(i = 0; i < depth; i++)
+			printf("\t");
+		printf("No cmds.\n");
+	}
+	if (ast->next) {
+		for(i = 0; i < depth; i++)
+			printf("\t");
+		printf("Next pipeline:\n");
+		print_ast_debug(ast->next, depth + 1);
+	}
+}
+
+static void print_ast(t_pipeline *ast)
+{
+	printf("AST Debug:\n");
+	print_ast_debug(ast, 1);
+}
+
+static void execute_simple_command(t_cmd *cmd, t_env_var **env)
 {
 	if (!cmd || !cmd->argv || !cmd->argv[0])
 		return;
-	
 	// ビルトインコマンドの実行
 	if (strcmp(cmd->argv[0], "env") == 0)
 		ft_env(*env);
@@ -112,11 +155,10 @@ static void	execute_simple_command(t_cmd *cmd, t_env_var **env)
 	}
 }
 
-static void	execute_pipeline(t_pipeline *pipeline, t_env_var **env)
+static void execute_pipeline(t_pipeline *pipeline, t_env_var **env)
 {
 	if (!pipeline)
 		return;
-	
 	// 現在は単純なコマンドのみ対応
 	if (pipeline->cmds && !pipeline->cmds->next && !pipeline->cmds->redirects)
 	{
@@ -126,7 +168,6 @@ static void	execute_pipeline(t_pipeline *pipeline, t_env_var **env)
 	{
 		printf("Complex commands (pipes, redirections) not yet implemented\n");
 	}
-	
 	// 次のパイプライン（&&, ||, ;）は未実装
 	if (pipeline->next)
 	{
@@ -134,11 +175,11 @@ static void	execute_pipeline(t_pipeline *pipeline, t_env_var **env)
 	}
 }
 
-int	main(int argc, char **argv, char **envp)
+int main(int argc, char **argv, char **envp)
 {
-	char			*line;
-	t_token_stream	*stream;
-	t_env_var		*env;
+	char *line;
+	t_token_stream *stream;
+	t_env_var *env;
 
 	(void)argc;
 	(void)argv;
@@ -154,34 +195,30 @@ int	main(int argc, char **argv, char **envp)
 		}
 		if (*line)
 			add_history(line);
-		
 		// レキサーでトークン化
 		stream = lexer(line);
-		
 		// デバッグ用：トークンを表示
 		printf("=== Tokens ===\n");
 		print_tokens(stream->head);
-		
 		// パーサーでAST作成
 		t_parse_result *result = parse(stream);
-		
 		// パース結果を表示
 		print_parse_result(result);
-		
+		/* 追加: ASTの内容を詳細にデバッグ出力 */
+		if (result && result->ast)
+			print_ast(result->ast);
 		// パース成功時は実行
 		if (result && !result->error_msg && result->ast)
 		{
 			execute_pipeline(result->ast, &env);
 		}
-		
 		// exitコマンドの特殊処理
-		if (stream->head && stream->head->type == TOKEN_WORD 
-			&& strcmp(stream->head->value.word, "exit") == 0)
+		if (stream->head && stream->head->type == TOKEN_WORD
+		&& strcmp(stream->head->value.word, "exit") == 0)
 		{
 			char **argv = make_argv(stream->head);
 			ft_exit(argv + 1, stream, env);
 		}
-		
 		// メモリ解放
 		if (result)
 			free_parse_result(result);

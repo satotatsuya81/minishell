@@ -13,7 +13,7 @@ DOMAIN_SRCS	=		$(wildcard $(DOMAIN_DIR)/token/*.c) \
 					$(wildcard $(DOMAIN_DIR)/command/*.c) \
 					$(wildcard $(DOMAIN_DIR)/env/*.c)
 
-# Use case layer sources  
+# Use case layer sources
 LEXER_SRCS	=		$(wildcard $(USE_CASE_DIR)/lexer/*.c) \
 					$(wildcard $(USE_CASE_DIR)/lexer/handler/*.c)
 PARSER_SRCS	=		$(wildcard $(USE_CASE_DIR)/parser/*.c)
@@ -47,7 +47,7 @@ OBJS			=	$(SRCS:%.c=%.o)
 LIBFT_DIR		=	$(SRCS_DIR)/utils/libft
 LIBFT_A			=	libft.a
 # ヘッダファイルのあるディレクトリ
-INCLUDES		=	-I$(INCLUDES_DIR) -I$(LIBFT_DIR) -L/usr/include -lreadline
+INCLUDES		=	-I$(INCLUDES_DIR) -I$(LIBFT_DIR)
 LDFLAGS			=	-lreadline -L$(LIBFT_DIR) -lft
 START_COMPILING	=	0
 
