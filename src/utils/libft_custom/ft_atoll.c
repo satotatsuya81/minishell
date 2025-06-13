@@ -47,7 +47,7 @@ long long	convert_str_to_negative_num(const char *str)
 	return (result);
 }
 
-long long	my_atoll(const char *str)
+long long	ft_atoll(const char *str)
 {
 	int			negative;
 

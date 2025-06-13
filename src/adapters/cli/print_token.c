@@ -13,34 +13,42 @@
 #include "usecase/lexer/token_printer.h"
 #include <stdio.h>
 
+static void	print_redirect_token(t_token *token)
+{
+	if (token->value.redirect.redirect_type == REDIRECT_INPUT)
+		printf("REDIRECT IN: <\n");
+	else if (token->value.redirect.redirect_type == REDIRECT_OUTPUT)
+		printf("REDIRECT OUT: >\n");
+	else if (token->value.redirect.redirect_type == REDIRECT_HEREDOC)
+		printf("HEREDOC: <<\n");
+	else if (token->value.redirect.redirect_type == REDIRECT_APPEND)
+		printf("APPEND: >>\n");
+}
+
+static void	print_single_token(t_token *token)
+{
+	if (token->type == TOKEN_WORD)
+		printf("WORD: %s\n", token->value.word);
+	else if (token->type == TOKEN_PIPE)
+		printf("PIPE: %s\n", "|");
+	else if (token->type == TOKEN_EOF)
+		printf("EOF\n");
+	else if (token->type == TOKEN_REDIRECT)
+		print_redirect_token(token);
+	else if (token->type == TOKEN_ASSIGNMENT)
+		printf("ASSIGNMENT: %s=%s\n",
+			token->value.assignment.name, token->value.assignment.value);
+	else if (token->type == TOKEN_ERROR)
+		printf("ERROR: %s\n", token->value.word);
+	else
+		printf("UNKNOWN\n");
+}
+
 void	print_tokens(t_token *token)
 {
 	while (token)
 	{
-		if (token->type == TOKEN_WORD)
-			printf("WORD: %s\n", token->value.word);
-		else if (token->type == TOKEN_PIPE)
-			printf("PIPE: %s\n", "|");
-		else if (token->type == TOKEN_EOF)
-			printf("EOF\n");
-		else if (token->type == TOKEN_REDIRECT)
-		{
-			if (token->value.redirect.redirect_type == REDIRECT_INPUT)
-				printf("REDIRECT IN: <\n");
-			else if (token->value.redirect.redirect_type == REDIRECT_OUTPUT)
-				printf("REDIRECT OUT: >\n");
-			else if (token->value.redirect.redirect_type == REDIRECT_HEREDOC)
-				printf("HEREDOC: <<\n");
-			else if (token->value.redirect.redirect_type == REDIRECT_APPEND)
-				printf("APPEND: >>\n");
-		}
-		else if (token->type == TOKEN_ASSIGNMENT)
-			printf("ASSIGNMENT: %s=%s\n",
-				token->value.assignment.name, token->value.assignment.value);
-		else if (token->type == TOKEN_ERROR)
-			printf("ERROR: %s\n", token->value.word);
-		else
-			printf("UNKNOWN\n");
+		print_single_token(token);
 		token = token->next;
 	}
 }

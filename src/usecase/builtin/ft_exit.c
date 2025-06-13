@@ -102,7 +102,7 @@ void	ft_exit(char **argv, t_token_stream *stream, t_env_var *env)
 		write(STDERR_FILENO, "bash: exit: numeric argument required\n", 38);
 		exit_minishell(255, stream, env);
 	}
-	exit_code = my_atoll(*argv);
+	exit_code = ft_atoll(*argv);
 	if (exit_code < 0)
 		exit_code = 256 + exit_code;
 	if (exit_code < 0)

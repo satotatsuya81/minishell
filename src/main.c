@@ -22,210 +22,103 @@
 #include "usecase/lexer/lexer.h"
 #include "usecase/builtin/builtin_commands.h"
 #include "usecase/parser/parser_interface.h"
+#include "usecase/executor/executor.h"
 #include "domain/command.h"
+#include "adapters/cli/debug_output.h"
+#include "adapters/cli/parser_output.h"
+#include "adapters/cli/output_utils.h"
 
-static char**make_argv(t_token *token)
+static void	execute_and_cleanup(t_parse_result *result, t_exec_context *ctx)
 {
-	char**argv;
-	int count;
-	t_token* current;
+	int	status;
 
-	if (!token)
-		return (NULL);
-	count = 0;
-	current = token;
-	while (current)
+	if (result && !result->error_msg && result->ast)
 	{
-		if (current->type == TOKEN_WORD)
-			count++;
-		if (current->type == TOKEN_ASSIGNMENT)
-			count++;
-		current = current->next;
-	}
-	argv = malloc(sizeof(char *) * (count + 1));
-	if (!argv)
-		return (NULL);
-	count = 0;
-	current = token;
-	while (current)
-	{
-		if (current->type == TOKEN_WORD)
-			argv[count++] = current->value.word;
-		if (current->type == TOKEN_ASSIGNMENT)
-		{
-			// ビルトインコマンドの引数としては無視する
-			argv[count++] = current->value.assignment.text;
-		}
-		current = current->next;
-	}
-	argv[count] = NULL;
-	return (argv);
-}
-
-static void print_parse_result(t_parse_result *result)
-{
-	if (!result) {
-		printf("❌ Parse failed: result is NULL\n");
-		return;
-	}
-	if (result->error_msg) {
-		printf("❌ Parse error: %s (line %d, column %d)\n",
-		result->error_msg, result->error_line, result->error_column);
-		return;
-	}
-	if (!result->ast) {
-		printf("❌ Parse failed: AST is NULL\n");
-		return;
-	}
-	printf("✅ Parse successful! AST created.\n");
-}
-
-/* 新規追加: ASTの内容を詳細にデバッグ出力する関数 */
-static void print_ast_debug(t_pipeline *ast, int depth)
-{
-	int i;
-	// インデント
-	for(i = 0; i < depth; i++)
-		printf("\t");
-	if (!ast) {
-		printf("NULL\n");
-		return;
-	}
-	printf("Pipeline at %p\n", ast);
-	if (ast->cmds) {
-		for(i = 0; i < depth; i++)
-			printf("\t");
-		printf("Cmds:\n");
-		int j = 0;
-		while (ast->cmds->argv && ast->cmds->argv[j]) {
-			for(i = 0; i < depth + 1; i++)
-				printf("\t");
-			printf("argv[%d]: %s\n", j, ast->cmds->argv[j]);
-			j++;
-		}
-		if (j == 0) {
-			for(i = 0; i < depth + 1; i++)
-				printf("\t");
-			printf("No arguments.\n");
-		}
-	} else {
-		for(i = 0; i < depth; i++)
-			printf("\t");
-		printf("No cmds.\n");
-	}
-	if (ast->next) {
-		for(i = 0; i < depth; i++)
-			printf("\t");
-		printf("Next pipeline:\n");
-		print_ast_debug(ast->next, depth + 1);
-	}
-}
-
-static void print_ast(t_pipeline *ast)
-{
-	printf("AST Debug:\n");
-	print_ast_debug(ast, 1);
-}
-
-static void execute_simple_command(t_cmd *cmd, t_env_var **env)
-{
-	if (!cmd || !cmd->argv || !cmd->argv[0])
-		return;
-	// ビルトインコマンドの実行
-	if (strcmp(cmd->argv[0], "env") == 0)
-		ft_env(*env);
-	else if (strcmp(cmd->argv[0], "export") == 0)
-		ft_export(cmd->argv + 1, env);
-	else if (strcmp(cmd->argv[0], "unset") == 0)
-		ft_unset(cmd->argv + 1, env);
-	else if (strcmp(cmd->argv[0], "cd") == 0)
-		ft_cd(cmd->argv + 1, env);
-	else if (strcmp(cmd->argv[0], "pwd") == 0)
-		ft_pwd();
-	else if (strcmp(cmd->argv[0], "echo") == 0)
-		ft_echo(cmd->argv + 1);
-	else if (strcmp(cmd->argv[0], "exit") == 0)
-	{
-		// exitは特殊処理が必要なので一旦スキップ
-		printf("exit command detected\n");
+		printf("=== Execution ===\n");
+		status = execute_pipeline_list(result->ast, ctx);
+		print_execution_summary(status, ctx);
+		printf("\n");
+		if (ctx->should_exit)
+			printf("Exiting minishell...\n");
 	}
 	else
 	{
-		printf("Command not found: %s\n", cmd->argv[0]);
+		printf("=== Execution ===\n");
+		printf("❌ Skipped due to parsing errors\n\n");
 	}
 }
 
-static void execute_pipeline(t_pipeline *pipeline, t_env_var **env)
+static void	process_and_print(char *line, t_exec_context *exec_ctx)
 {
-	if (!pipeline)
-		return;
-	// 現在は単純なコマンドのみ対応
-	if (pipeline->cmds && !pipeline->cmds->next && !pipeline->cmds->redirects)
+	t_token_stream	*stream;
+	t_parse_result	*result;
+
+	stream = lexer(line);
+	print_lexer_summary(stream);
+	printf("=== Token Details ===\n");
+	print_tokens(stream->head);
+	printf("\n");
+	result = parse(stream);
+	print_parse_result(result);
+	if (result && result->ast)
 	{
-		execute_simple_command(pipeline->cmds, env);
+		printf("=== AST Details ===\n");
+		print_ast(result->ast);
+		printf("\n");
 	}
-	else
-	{
-		printf("Complex commands (pipes, redirections) not yet implemented\n");
-	}
-	// 次のパイプライン（&&, ||, ;）は未実装
-	if (pipeline->next)
-	{
-		printf("Operators (&&, ||, ;) not yet implemented\n");
-	}
+	execute_and_cleanup(result, exec_ctx);
+	if (result)
+		free_parse_result(result);
+	free_tokens(stream);
 }
 
-int main(int argc, char **argv, char **envp)
+static void	process_input_line(char *line, t_exec_context *exec_ctx)
 {
-	char *line;
-	t_token_stream *stream;
-	t_env_var *env;
+	process_and_print(line, exec_ctx);
+}
 
-	(void)argc;
-	(void)argv;
-	if (envp)
-		env = env_create_from_envp(envp);
+static int	shell_loop(t_exec_context *exec_ctx)
+{
+	char	*line;
+
 	while (1)
 	{
 		line = readline("minishell> ");
-		if (!line) {
-			// Ctrl-DなどでNULLが返る → 終了
+		if (!line)
+		{
 			printf("exit\n");
 			break ;
 		}
 		if (*line)
 			add_history(line);
-		// レキサーでトークン化
-		stream = lexer(line);
-		// デバッグ用：トークンを表示
-		printf("=== Tokens ===\n");
-		print_tokens(stream->head);
-		// パーサーでAST作成
-		t_parse_result *result = parse(stream);
-		// パース結果を表示
-		print_parse_result(result);
-		/* 追加: ASTの内容を詳細にデバッグ出力 */
-		if (result && result->ast)
-			print_ast(result->ast);
-		// パース成功時は実行
-		if (result && !result->error_msg && result->ast)
-		{
-			execute_pipeline(result->ast, &env);
-		}
-		// exitコマンドの特殊処理
-		if (stream->head && stream->head->type == TOKEN_WORD
-		&& strcmp(stream->head->value.word, "exit") == 0)
-		{
-			char **argv = make_argv(stream->head);
-			ft_exit(argv + 1, stream, env);
-		}
-		// メモリ解放
-		if (result)
-			free_parse_result(result);
-		free_tokens(stream);
+		process_input_line(line, exec_ctx);
 		free(line);
+		if (exec_ctx->should_exit)
+			break ;
 	}
+	return (exec_ctx->exit_code);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	t_env_var		*env;
+	t_exec_context	*exec_ctx;
+	int				exit_code;
+
+	(void)argc;
+	(void)argv;
+	env = NULL;
+	if (envp)
+		env = env_create_from_envp(envp);
+	exec_ctx = create_exec_context(&env);
+	if (!exec_ctx)
+	{
+		printf("Failed to create execution context\n");
+		return (EXIT_FAILURE);
+	}
+	exit_code = shell_loop(exec_ctx);
+	free_exec_context(exec_ctx);
 	if (env)
 		env_free(env);
-	return (0);
+	return (exit_code);
 }
