@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "../../../include/usecase/parser/parser_internal.h"
+#include "../../../include/adapters/parser/parser_internal.h"
 #include "../../../src/utils/libft/libft.h"
 
 t_parse_result	*create_parse_result(void)

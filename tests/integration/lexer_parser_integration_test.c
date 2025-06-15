@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "usecase/lexer/lexer.h"
-#include "usecase/parser/parser.h"
+#include "adapters/parser/parser.h"
 #include "domain/token.h"
 
 /* Test case structure for integration tests */

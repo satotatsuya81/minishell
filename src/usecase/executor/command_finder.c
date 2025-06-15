@@ -5,15 +5,15 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 00:00:00 by claude            #+#    #+#             */
-/*   Updated: 2025/06/13 23:58:47 by tatsato          ###   ########.fr       */
+/*   Created: 2025/01/06 00:00:00 by tatsato           #+#    #+#             */
+/*   Updated: 2025/06/16 08:35:47 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdlib.h>
 #include "usecase/executor/executor.h"
-#include "domain/env_variable.h"
+#include "usecase/env/env_manager.h"
 #include "utils/libft_custom.h"
 
 static char	*check_absolute_path(const char *cmd)

@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "../../../include/usecase/parser/parser_internal.h"
+#include "../../../include/adapters/parser/parser_internal.h"
 #include "../../../src/utils/libft/libft.h"
 
 int	add_word_to_cmd(t_cmd *cmd, t_token_stream *tokens, int *argc)

@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include "adapters/cli/parser_output.h"
-#include "usecase/parser/parser_interface.h"
+#include "adapters/parser/parser_interface.h"
 #include "domain/command.h"
 
 static void	count_pipelines_and_commands(t_parse_result *result, int *counts)

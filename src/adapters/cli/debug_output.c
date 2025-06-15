@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include "adapters/cli/debug_output.h"
 #include "domain/token.h"
-#include "usecase/parser/parser_interface.h"
+#include "adapters/parser/parser_interface.h"
 
 static void	count_token_types(t_token_stream *stream, int *counts)
 {

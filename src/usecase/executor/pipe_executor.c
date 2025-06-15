@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 00:00:00 by claude            #+#    #+#             */
-/*   Updated: 2025/06/13 23:19:59 by tatsato          ###   ########.fr       */
+/*   Created: 2025/01/06 00:00:00 by tatsato           #+#    #+#             */
+/*   Updated: 2025/06/16 08:35:40 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static void	execute_command_in_child(t_pipe_params *params)
 	}
 }
 
-static int	execute_pipe_command(t_pipe_params *params)
+int	execute_pipe_command(t_pipe_params *params)
 {
 	pid_t	pid;
 

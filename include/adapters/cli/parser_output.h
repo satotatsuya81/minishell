@@ -13,7 +13,7 @@
 #ifndef PARSER_OUTPUT_H
 # define PARSER_OUTPUT_H
 
-# include "usecase/parser/parser_interface.h"
+# include "adapters/parser/parser_interface.h"
 
 void	print_parse_result(t_parse_result *result);
 

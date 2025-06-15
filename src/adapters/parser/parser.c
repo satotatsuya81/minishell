@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "usecase/parser/parser_internal.h"
+#include "adapters/parser/parser_internal.h"
 #include "utils/libft_custom.h"
 
 /* 新しいパイプラインを作成してパース */

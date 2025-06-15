@@ -1,6 +1,6 @@
 #include <criterion/criterion.h>
 #include "domain/env_variable.h"
-#include "domain/env_initializer.h"
+#include "usecase/env/env_manager.h"
 #include "test_env_helpers.h"
 
 Test(env_variable, test_add_get_remove_free) {

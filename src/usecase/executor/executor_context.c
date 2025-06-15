@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 00:00:00 by claude            #+#    #+#             */
-/*   Updated: 2025/06/13 23:54:55 by tatsato          ###   ########.fr       */
+/*   Created: 2025/01/06 00:00:00 by tatsato           #+#    #+#             */
+/*   Updated: 2025/06/13 23:54:55 by tatsato         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 #include "usecase/executor/executor.h"
 
 /* Create execution context */
-t_exec_context	*create_exec_context(t_env_var **env)
+t_exec_context	*create_exec_context(t_env_var **env,
+					t_io_service *io, t_output_service *out)
 {
 	t_exec_context	*ctx;
 
@@ -22,6 +23,8 @@ t_exec_context	*create_exec_context(t_env_var **env)
 	if (!ctx)
 		return (NULL);
 	ctx->env = env;
+	ctx->io_service = io;
+	ctx->output_service = out;
 	ctx->last_exit_status = 0;
 	ctx->should_exit = 0;
 	ctx->exit_code = 0;

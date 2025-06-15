@@ -10,13 +10,12 @@ UTILS_DIR = $(SRCS_DIR)/utils
 
 # Domain layer sources
 DOMAIN_SRCS	=		$(wildcard $(DOMAIN_DIR)/token/*.c) \
-					$(wildcard $(DOMAIN_DIR)/command/*.c) \
-					$(wildcard $(DOMAIN_DIR)/env/*.c)
+					$(wildcard $(DOMAIN_DIR)/command/*.c)
 
 # Use case layer sources
 LEXER_SRCS	=		$(wildcard $(USE_CASE_DIR)/lexer/*.c) \
 					$(wildcard $(USE_CASE_DIR)/lexer/handler/*.c)
-PARSER_SRCS	=		$(wildcard $(USE_CASE_DIR)/parser/*.c)
+ENV_SRCS	=		$(wildcard $(USE_CASE_DIR)/env/*.c)
 EXECUTOR_SRCS	=	$(wildcard $(USE_CASE_DIR)/executor/*.c)
 BUILTIN_SRCS	=	$(wildcard $(USE_CASE_DIR)/builtin/*.c)
 ASSIGNMENT_SRCS	=	$(wildcard $(USE_CASE_DIR)/assignment/*.c)
@@ -24,8 +23,12 @@ EXIT_SRCS	=		$(wildcard $(USE_CASE_DIR)/exit/*.c)
 
 # Adapters layer sources
 ADAPT_CLI_SRCS	=	$(wildcard $(ADAPTERS_DIR)/cli/*.c)
+ADAPT_PARSER_SRCS	=	$(wildcard $(ADAPTERS_DIR)/parser/*.c)
 ADAPT_SYS_SRCS	=	$(wildcard $(ADAPTERS_DIR)/system/*.c)
 ADAPT_IO_SRCS	=	$(wildcard $(ADAPTERS_DIR)/io/*.c)
+
+# Infrastructure layer sources
+INFRA_SRCS	=	$(wildcard $(SRCS_DIR)/infrastructure/*.c)
 
 # Utilities
 UTILS_SRCS	=		$(wildcard $(UTILS_DIR)/libft_custom/*.c)
@@ -33,14 +36,16 @@ UTILS_SRCS	=		$(wildcard $(UTILS_DIR)/libft_custom/*.c)
 # ソースファイル一覧
 SRCS			=	$(DOMAIN_SRCS) \
 					$(LEXER_SRCS) \
-					$(PARSER_SRCS) \
+					$(ENV_SRCS) \
 					$(EXECUTOR_SRCS) \
 					$(BUILTIN_SRCS) \
 					$(ASSIGNMENT_SRCS) \
 					$(EXIT_SRCS) \
 					$(ADAPT_CLI_SRCS) \
+					$(ADAPT_PARSER_SRCS) \
 					$(ADAPT_SYS_SRCS) \
 					$(ADAPT_IO_SRCS) \
+					$(INFRA_SRCS) \
 					$(UTILS_SRCS) \
 					$(SRCS_DIR)/main.c
 OBJS			=	$(SRCS:%.c=%.o)
@@ -99,7 +104,7 @@ TESTS_DIR		=	tests
 TEST_SRCS		=	$(shell find $(TESTS_DIR) -name '*.c' -not -path '$(TESTS_DIR)/parser/*') \
 					$(DOMAIN_SRCS) \
 					$(LEXER_SRCS) \
-					$(PARSER_SRCS) \
+					$(ADAPT_PARSER_SRCS) \
 					$(EXECUTOR_SRCS) \
 					$(BUILTIN_SRCS) \
 					$(ASSIGNMENT_SRCS) \
@@ -140,30 +145,31 @@ test_operators: $(TESTS_DIR)/parser/test_operators
 test_heredoc: $(TESTS_DIR)/parser/test_heredoc
 	./$(TESTS_DIR)/parser/test_heredoc
 
-$(TESTS_DIR)/parser/test_simple_command: $(LIBFT_A) $(TESTS_DIR)/parser/test_simple_command.c $(PARSER_SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_simple_command.c $(PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_simple_command: $(LIBFT_A) $(TESTS_DIR)/parser/test_simple_command.c $(ADAPT_PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_simple_command.c $(ADAPT_PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_quote_handling: $(LIBFT_A) $(TESTS_DIR)/parser/test_quote_handling.c $(PARSER_SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_quote_handling.c $(PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_quote_handling: $(LIBFT_A) $(TESTS_DIR)/parser/test_quote_handling.c $(ADAPT_PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_quote_handling.c $(ADAPT_PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_pipe: $(LIBFT_A) $(TESTS_DIR)/parser/test_pipe.c $(PARSER_SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_pipe.c $(PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_pipe: $(LIBFT_A) $(TESTS_DIR)/parser/test_pipe.c $(ADAPT_PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_pipe.c $(ADAPT_PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_redirection: $(LIBFT_A) $(TESTS_DIR)/parser/test_redirection.c $(PARSER_SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_redirection.c $(PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_redirection: $(LIBFT_A) $(TESTS_DIR)/parser/test_redirection.c $(ADAPT_PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_redirection.c $(ADAPT_PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_operators: $(LIBFT_A) $(TESTS_DIR)/parser/test_operators.c $(PARSER_SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_operators.c $(PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_operators: $(LIBFT_A) $(TESTS_DIR)/parser/test_operators.c $(ADAPT_PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_operators.c $(ADAPT_PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
-$(TESTS_DIR)/parser/test_heredoc: $(LIBFT_A) $(TESTS_DIR)/parser/test_heredoc.c $(PARSER_SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_heredoc.c $(PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
+$(TESTS_DIR)/parser/test_heredoc: $(LIBFT_A) $(TESTS_DIR)/parser/test_heredoc.c $(ADAPT_PARSER_SRCS)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_heredoc.c $(ADAPT_PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
 # Integration test for lexer and parser
 INTEGRATION_TEST_DIR = $(TESTS_DIR)/integration
 INTEGRATION_TEST_SRCS = $(INTEGRATION_TEST_DIR)/lexer_parser_integration_test.c \
 						$(DOMAIN_SRCS) \
 						$(LEXER_SRCS) \
-						$(PARSER_SRCS) \
+						$(ADAPT_PARSER_SRCS) \
+						$(ENV_SRCS) \
 						$(ASSIGNMENT_SRCS) \
 						$(ADAPT_CLI_SRCS) \
 						$(UTILS_SRCS)
@@ -172,7 +178,8 @@ INTEGRATION_TEST_NAME = $(INTEGRATION_TEST_DIR)/lexer_parser_integration_test
 SIMPLE_TEST_SRCS = $(INTEGRATION_TEST_DIR)/simple_integration_test.c \
 				   $(DOMAIN_SRCS) \
 				   $(LEXER_SRCS) \
-				   $(PARSER_SRCS) \
+				   $(ADAPT_PARSER_SRCS) \
+				   $(ENV_SRCS) \
 				   $(ASSIGNMENT_SRCS) \
 				   $(ADAPT_CLI_SRCS) \
 				   $(UTILS_SRCS)
@@ -181,7 +188,8 @@ SIMPLE_TEST_NAME = $(INTEGRATION_TEST_DIR)/simple_integration_test
 COMPREHENSIVE_TEST_SRCS = $(INTEGRATION_TEST_DIR)/comprehensive_test.c \
 				   $(DOMAIN_SRCS) \
 				   $(LEXER_SRCS) \
-				   $(PARSER_SRCS) \
+				   $(ADAPT_PARSER_SRCS) \
+				   $(ENV_SRCS) \
 				   $(ASSIGNMENT_SRCS) \
 				   $(ADAPT_CLI_SRCS) \
 				   $(UTILS_SRCS)
@@ -216,6 +224,7 @@ EXECUTOR_TEST_DIR = $(TESTS_DIR)/executor
 EXECUTOR_TEST_BUILTIN_SRCS = $(EXECUTOR_TEST_DIR)/test_builtin_executor.c \
 							$(DOMAIN_SRCS) \
 							$(LEXER_SRCS) \
+							$(ENV_SRCS) \
 							$(EXECUTOR_SRCS) \
 							$(BUILTIN_SRCS) \
 							$(ASSIGNMENT_SRCS) \
@@ -224,6 +233,7 @@ EXECUTOR_TEST_BUILTIN_SRCS = $(EXECUTOR_TEST_DIR)/test_builtin_executor.c \
 EXECUTOR_TEST_EXTERNAL_SRCS = $(EXECUTOR_TEST_DIR)/test_external_executor.c \
 							 $(DOMAIN_SRCS) \
 							 $(LEXER_SRCS) \
+							 $(ENV_SRCS) \
 							 $(EXECUTOR_SRCS) \
 							 $(BUILTIN_SRCS) \
 							 $(ASSIGNMENT_SRCS) \
@@ -232,6 +242,7 @@ EXECUTOR_TEST_EXTERNAL_SRCS = $(EXECUTOR_TEST_DIR)/test_external_executor.c \
 EXECUTOR_TEST_REDIRECT_SRCS = $(EXECUTOR_TEST_DIR)/test_redirection_executor.c \
 							 $(DOMAIN_SRCS) \
 							 $(LEXER_SRCS) \
+							 $(ENV_SRCS) \
 							 $(EXECUTOR_SRCS) \
 							 $(BUILTIN_SRCS) \
 							 $(ASSIGNMENT_SRCS) \
@@ -244,6 +255,7 @@ EXECUTOR_TEST_REDIRECT_NAME = $(EXECUTOR_TEST_DIR)/test_redirection_executor
 EXECUTOR_TEST_SIMPLE_SRCS = $(EXECUTOR_TEST_DIR)/test_simple_executor.c \
 						   $(DOMAIN_SRCS) \
 						   $(LEXER_SRCS) \
+						   $(ENV_SRCS) \
 						   $(EXECUTOR_SRCS) \
 						   $(BUILTIN_SRCS) \
 						   $(ASSIGNMENT_SRCS) \
@@ -255,7 +267,8 @@ EXECUTOR_TEST_SIMPLE_NAME = $(EXECUTOR_TEST_DIR)/test_simple_executor
 FULL_INTEGRATION_SRCS = $(INTEGRATION_TEST_DIR)/full_integration_test.c \
 					   $(DOMAIN_SRCS) \
 					   $(LEXER_SRCS) \
-					   $(PARSER_SRCS) \
+					   $(ADAPT_PARSER_SRCS) \
+					   $(ENV_SRCS) \
 					   $(EXECUTOR_SRCS) \
 					   $(BUILTIN_SRCS) \
 					   $(ASSIGNMENT_SRCS) \

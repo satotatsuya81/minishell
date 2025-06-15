@@ -14,7 +14,7 @@
 #include "adapters/cli/output_utils.h"
 #include "domain/token.h"
 #include "domain/command.h"
-#include "usecase/parser/parser_interface.h"
+#include "adapters/parser/parser_interface.h"
 #include "usecase/executor/executor.h"
 
 void	print_indent(int depth)

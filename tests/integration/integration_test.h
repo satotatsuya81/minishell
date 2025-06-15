@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: claude <claude@anthropic.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 00:00:00 by claude            #+#    #+#             */
-/*   Updated: 2025/01/06 00:00:00 by claude           ###   ########.fr       */
+/*   Created: 2025/01/06 00:00:00 by tatsato            #+#    #+#             */
+/*   Updated: 2025/01/06 00:00:00 by tatsato           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <string.h>
 # include <assert.h>
 # include "usecase/lexer/lexer.h"
-# include "usecase/parser/parser.h"
+# include "adapters/parser/parser.h"
 # include "domain/token.h"
 
 /* Test case structure for integration tests */

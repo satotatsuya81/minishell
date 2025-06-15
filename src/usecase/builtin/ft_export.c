@@ -10,11 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "domain/env_initializer.h"
-#include "domain/env_variable.h"
+#include "usecase/env/env_manager.h"
 #include "usecase/assignment/assignment_creator.h"
 #include "utils/libft_custom.h"
-#include <unistd.h>
+#include "interfaces/output_interface.h"
 #include <stdlib.h>
 
 /**
@@ -52,21 +51,22 @@ static void	sort_env_list(t_env_var *env)
 	}
 }
 
-static int	print_env(t_env_var *env)
+static int	print_env(t_env_var *env, t_output_service *out)
 {
-	if (write(STDOUT_FILENO, "declare -x ", 12) < 0)
+	if (!out)
 		return (EXIT_FAILURE);
-	if (write(STDOUT_FILENO, env->key, ft_strlen(env->key)) < 0)
+	if (out->write_stdout("declare -x ") != OUTPUT_SUCCESS)
 		return (EXIT_FAILURE);
-	if (write(STDOUT_FILENO, "=", 1) < 0)
+	if (out->write_stdout(env->key) != OUTPUT_SUCCESS)
+		return (EXIT_FAILURE);
+	if (out->write_stdout("=") != OUTPUT_SUCCESS)
 		return (EXIT_FAILURE);
 	if (env->value)
 	{
-		if (write(STDOUT_FILENO, env->value,
-				ft_strlen(env->value)) < 0)
+		if (out->write_stdout(env->value) != OUTPUT_SUCCESS)
 			return (EXIT_FAILURE);
 	}
-	if (write(STDOUT_FILENO, "\n", 1) < 0)
+	if (out->write_stdout("\n") != OUTPUT_SUCCESS)
 		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
@@ -78,7 +78,7 @@ static int	print_env(t_env_var *env)
  * @return EXIT_SUCCESS on success,
  *         EXIT_FAILURE on failure (e.g., if writing to stdout fails).
  */
-static int	print_all_env(t_env_var *env)
+static int	print_all_env(t_env_var *env, t_output_service *out)
 {
 	t_env_var	*head;
 	t_env_var	*current;
@@ -92,7 +92,7 @@ static int	print_all_env(t_env_var *env)
 	current = head;
 	while (current)
 	{
-		if (print_env(current) == EXIT_FAILURE)
+		if (print_env(current, out) == EXIT_FAILURE)
 		{
 			env_free(current);
 			return (EXIT_FAILURE);
@@ -103,11 +103,13 @@ static int	print_all_env(t_env_var *env)
 	return (EXIT_SUCCESS);
 }
 
-static	void	print_error(char *arg)
+static	void	print_error(char *arg, t_output_service *out)
 {
-	ft_putstr_fd("bash: export: `", STDERR_FILENO);
-	ft_putstr_fd(arg, STDERR_FILENO);
-	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+	if (!out)
+		return ;
+	out->write_stderr("bash: export: `");
+	out->write_stderr(arg);
+	out->write_stderr("': not a valid identifier\n");
 }
 
 /**
@@ -117,20 +119,20 @@ static	void	print_error(char *arg)
  * If the variable does not exist, it adds a new node with the key and value.
  * @param envp Pointer to the head of the linked list of environment variables.
  */
-int	ft_export(char **argv, t_env_var **envp)
+int	ft_export(char **argv, t_env_var **envp, t_output_service *out)
 {
 	char			*arg;
 	t_assignment	assignment;
 
 	if (!argv || !*argv)
-		return (print_all_env(*envp));
+		return (print_all_env(*envp, out));
 	while (*argv)
 	{
 		arg = *argv++;
 		assignment = create_assignment(arg, ft_strlen(arg));
 		if (assignment.text == NULL)
 		{
-			print_error(arg);
+			print_error(arg, out);
 			continue ;
 		}
 		env_add_assignment(envp, &assignment);

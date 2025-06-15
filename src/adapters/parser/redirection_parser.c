@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "usecase/parser/parser_internal.h"
+#include "adapters/parser/parser_internal.h"
 
 /* リダイレクションのパース */
 t_cmd_redirect	*parse_redirection(t_token_stream *tokens)

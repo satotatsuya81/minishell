@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "domain/env_variable.h"
+#include "usecase/env/env_manager.h"
 #include <stdlib.h>
 
 /**

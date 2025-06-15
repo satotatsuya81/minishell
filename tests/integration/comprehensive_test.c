@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "usecase/lexer/lexer.h"
-#include "usecase/parser/parser.h"
+#include "adapters/parser/parser.h"
 #include "domain/token.h"
 
 typedef struct {

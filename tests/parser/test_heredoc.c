@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "usecase/parser/parser.h"
+#include "adapters/parser/parser.h"
 #include "domain/token.h"
 
 /* テスト用のヘルパー関数 */

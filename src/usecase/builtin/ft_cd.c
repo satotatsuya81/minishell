@@ -6,17 +6,15 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 23:03:51 by tatsato           #+#    #+#             */
-/*   Updated: 2025/06/01 16:51:55 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/16 08:37:50 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "domain/env_variable.h"
-#include "domain/env_initializer.h"
+#include "usecase/env/env_manager.h"
 #include "utils/libft_custom.h"
-#include <unistd.h>
+#include "interfaces/io_interface.h"
+#include "interfaces/output_interface.h"
 #include <stdlib.h>
-#include <stdio.h>
-#include <sys/param.h>
 
 /**
  * get_path - Get the path to change to.
@@ -60,31 +58,48 @@ static char	*get_path(char **argv, t_env_var **envp)
  *         (e.g., if the path does not exist
  *         or is not accessible or too many arguments).
  */
-int	ft_cd(char **argv, t_env_var **envp)
+int	ft_cd(char **argv, t_env_var **envp, t_io_service *io,
+		t_output_service *out)
 {
-	char	*path;
-	char	cwd[MAXPATHLEN];
-	char	*err_msg;
+	char		*path;
+	char		*cwd;
+	char		*err_msg;
+	t_io_result	result;
 
-	if (getcwd(cwd, MAXPATHLEN) == NULL)
+	if (!io || !out)
+		return (EXIT_FAILURE);
+	cwd = io->get_current_directory();
+	if (!cwd)
 		return (EXIT_FAILURE);
 	path = get_path(argv, envp);
 	if (!path)
 	{
-		write(STDERR_FILENO, "bash: cd: HOME not set\n", 23);
+		out->write_stderr("bash: cd: HOME not set\n");
+		free(cwd);
 		return (EXIT_FAILURE);
 	}
-	if (chdir(path) == -1)
+	result = io->change_directory(path);
+	if (result != IO_SUCCESS)
 	{
 		err_msg = ft_strjoin("bash: cd: ", path);
-		if (!err_msg)
-			return (EXIT_FAILURE);
-		perror(err_msg);
-		free(err_msg);
+		if (err_msg)
+		{
+			out->write_stderr(err_msg);
+			out->write_stderr(": ");
+			free(err_msg);
+		}
+		err_msg = io->get_error_message(result);
+		if (err_msg)
+		{
+			out->write_stderr_newline(err_msg);
+			free(err_msg);
+		}
+		free(cwd);
 		return (EXIT_FAILURE);
 	}
 	env_add(envp, "OLDPWD", cwd, "=");
 	env_add(envp, "PWD", path, "=");
+	free(cwd);
 	return (EXIT_SUCCESS);
 }
 

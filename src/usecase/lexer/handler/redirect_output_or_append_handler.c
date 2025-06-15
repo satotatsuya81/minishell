@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   redirect_output_or_apend_handler.c                 :+:      :+:    :+:   */
+/*   redirect_output_or_append_handler.c                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/18 18:17:02 by tatsato           #+#    #+#             */
-/*   Updated: 2025/05/31 23:51:28 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/16 07:33:04 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 #include "usecase/lexer/token_manager.h"
 #include "usecase/lexer/token_creator.h"
 #include "usecase/lexer/token_type_handler.h"
+
 /**
- * allways return 1
+ * always return 1
  * @param c
  */
 int	is_redirect_output_or_append(char c)

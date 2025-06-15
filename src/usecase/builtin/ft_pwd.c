@@ -10,24 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "domain/env_variable.h"
-#include "utils/libft_custom.h"
-#include <unistd.h>
-#include <sys/param.h>
+#include "interfaces/io_interface.h"
+#include "interfaces/output_interface.h"
 #include <stdlib.h>
 
-int	ft_pwd(void)
+int	ft_pwd(t_io_service *io, t_output_service *out)
 {
-	char	cwd[MAXPATHLEN];
+	char	*cwd;
 
-	if (getcwd(cwd, MAXPATHLEN))
-	{
-		if (write(STDOUT_FILENO, cwd, ft_strlen(cwd)) < 0)
-			return (EXIT_FAILURE);
-		if (write(STDOUT_FILENO, "\n", 1) < 0)
-			return (EXIT_FAILURE);
-		return (EXIT_SUCCESS);
-	}
-	else
+	if (!io || !out)
 		return (EXIT_FAILURE);
+	cwd = io->get_current_directory();
+	if (!cwd)
+		return (EXIT_FAILURE);
+	if (out->write_stdout_newline(cwd) != OUTPUT_SUCCESS)
+	{
+		free(cwd);
+		return (EXIT_FAILURE);
+	}
+	free(cwd);
+	return (EXIT_SUCCESS);
 }

@@ -6,13 +6,12 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 22:50:01 by tatsato           #+#    #+#             */
-/*   Updated: 2025/05/31 23:46:36 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/16 08:36:37 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "domain/env_variable.h"
+#include "interfaces/output_interface.h"
 #include "utils/libft_custom.h"
-#include <unistd.h>
 #include <stdlib.h>
 
 /**
@@ -20,14 +19,14 @@
  * @param argv The array of strings to print.
  * @return 0 on success, 1 on failure (e.g., if writing to stdout fails).
  */
-static int	print_echo(char **argv)
+static int	print_echo(char **argv, t_output_service *out)
 {
 	while (*argv)
 	{
-		if (write(STDOUT_FILENO, *argv, ft_strlen(*argv)) < 0)
-			return (EXIT_SUCCESS);
+		if (out->write_stdout(*argv) != OUTPUT_SUCCESS)
+			return (EXIT_FAILURE);
 		if (*(argv + 1) && (*argv)[0] != '\0')
-			write(STDOUT_FILENO, " ", 1);
+			out->write_stdout(" ");
 		argv++;
 	}
 	return (EXIT_SUCCESS);
@@ -41,16 +40,17 @@ static int	print_echo(char **argv)
  * @param str The string to print.
  * @return 0 on success, 1 on failure (e.g., if writing to stdout fails).
  */
-int	ft_echo(char **argv)
+int	ft_echo(char **argv, t_output_service *out)
 {
 	int	newline;
 	int	result;
 
+	if (!out)
+		return (EXIT_FAILURE);
 	newline = 1;
-	result = 0;
 	if (!argv || !*argv)
 	{
-		write(STDOUT_FILENO, "\n", 1);
+		out->write_stdout("\n");
 		return (EXIT_SUCCESS);
 	}
 	if (ft_strcmp(argv[0], "-n") == 0)
@@ -58,12 +58,12 @@ int	ft_echo(char **argv)
 		newline = 0;
 		argv++;
 	}
-	result = print_echo(argv);
+	result = print_echo(argv, out);
 	if (result != 0)
 		return (EXIT_FAILURE);
 	if (newline)
 	{
-		if (write(STDOUT_FILENO, "\n", 1) < 0)
+		if (out->write_stdout("\n") != OUTPUT_SUCCESS)
 			return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);

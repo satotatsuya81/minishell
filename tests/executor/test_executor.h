@@ -6,7 +6,7 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/14 00:00:00 by tatsato           #+#    #+#             */
-/*   Updated: 2025/06/14 00:00:00 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/16 07:58:06 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # include <sys/wait.h>
 # include "usecase/executor/executor.h"
 # include "domain/command.h"
-# include "domain/env_initializer.h"
+# include "usecase/env/env_manager.h"
 
 /* Test utilities */
 t_cmd			*create_test_cmd(char **argv);

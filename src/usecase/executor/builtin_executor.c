@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/06 00:00:00 by claude            #+#    #+#             */
-/*   Updated: 2025/06/14 10:13:29 by tatsato          ###   ########.fr       */
+/*   Created: 2025/01/06 00:00:00 by tatsato           #+#    #+#             */
+/*   Updated: 2025/06/16 08:34:38 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,17 +58,17 @@ static int	execute_basic_builtins(char *command, char **args,
 									t_exec_context *ctx)
 {
 	if (ft_strcmp(command, "echo") == 0)
-		return (ft_echo(args));
+		return (ft_echo(args, ctx->output_service));
 	else if (ft_strcmp(command, "cd") == 0)
-		return (ft_cd(args, ctx->env));
+		return (ft_cd(args, ctx->env, ctx->io_service, ctx->output_service));
 	else if (ft_strcmp(command, "pwd") == 0)
-		return (ft_pwd());
+		return (ft_pwd(ctx->io_service, ctx->output_service));
 	else if (ft_strcmp(command, "export") == 0)
-		return (ft_export(args, ctx->env));
+		return (ft_export(args, ctx->env, ctx->output_service));
 	else if (ft_strcmp(command, "unset") == 0)
 		return (ft_unset(args, ctx->env));
 	else if (ft_strcmp(command, "env") == 0)
-		return (ft_env(*ctx->env));
+		return (ft_env(*ctx->env, ctx->output_service));
 	else if (ft_strcmp(command, "exit") == 0)
 		return (handle_exit_command(args, ctx));
 	return (EXIT_FAILURE);

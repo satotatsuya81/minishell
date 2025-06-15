@@ -6,7 +6,7 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:56:54 by tatsato           #+#    #+#             */
-/*   Updated: 2025/06/01 18:02:14 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/16 07:58:06 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include "usecase/builtin/builtin_commands.h"
 #include "domain/token.h"
 #include "domain/env_variable.h"
-#include "domain/env_initializer.h"
+#include "usecase/env/env_manager.h"
 
 
 // テストケース用の構造体定義

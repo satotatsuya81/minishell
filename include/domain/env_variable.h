@@ -13,7 +13,8 @@
 #ifndef ENV_VARIABLE_H
 # define ENV_VARIABLE_H
 
-# include "domain/assignment.h"
+/* Forward declaration to avoid circular dependency */
+typedef struct s_assignment t_assignment;
 
 typedef struct s_env_var
 {
@@ -22,11 +23,7 @@ typedef struct s_env_var
 	struct s_env_var	*next;
 }						t_env_var;
 
-void		env_add(t_env_var **env,
-				const char *key, const char *value, const char *operator);
-void		env_add_assignment(t_env_var **env, t_assignment *assignment);
-void		env_remove(t_env_var **env, const char *key);
-char		*env_get(const t_env_var *env, const char *key);
-t_env_var	*dup_env(const t_env_var *env);
+/* Function declarations moved to usecase layer */
+/* These functions will be defined in usecase/env/ */
 
 #endif

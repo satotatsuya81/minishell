@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "domain/env_initializer.h"
+#include "usecase/env/env_manager.h"
 #include "utils/libft_custom.h"
 
 static char	*extract_key(const char *env_str)

@@ -12,8 +12,7 @@
 
 #include <stdlib.h>
 #include "domain/token.h"
-#include "domain/env_variable.h"
-#include "domain/env_initializer.h"
+#include "usecase/env/env_manager.h"
 #include "usecase/lexer/token_manager.h"
 
 void	exit_minishell(int exit_code, t_token_stream *stream, t_env_var *env)
