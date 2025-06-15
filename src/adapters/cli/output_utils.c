@@ -92,4 +92,3 @@ void	print_execution_summary(int status, t_exec_context *ctx)
 	else
 		printf("❌ Command failed with exit code: %d\n", status);
 }
-

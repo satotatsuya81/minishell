@@ -6,7 +6,7 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 15:56:01 by tatsato           #+#    #+#             */
-/*   Updated: 2025/06/01 17:57:18 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/14 09:43:06 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ static char	*extract_value(const char *env_str)
 {
 	char	*eq;
 
-	eq = strchr(env_str, '=');
+	eq = ft_strchr(env_str, '=');
 	if (!eq)
 		return (NULL);
 	return (ft_strndup(eq + 1, ft_strlen(eq + 1)));

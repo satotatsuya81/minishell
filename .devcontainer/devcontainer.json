@@ -2,7 +2,7 @@
   "name": "C Development with Valgrind & GDB",
   "workspaceFolder": "/workspace",
   "dockerComposeFile": "./docker-compose.yml",
-  "service": "my_service",
+  "service": "minishell",
   "customizations": {
     "vscode": {
       "extensions": [

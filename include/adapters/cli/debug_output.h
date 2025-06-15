@@ -16,5 +16,6 @@
 # include "domain/token.h"
 
 void	print_lexer_summary(t_token_stream *stream);
+void	print_success_info(t_token_stream *stream, int token_count);
 
 #endif

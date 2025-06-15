@@ -36,6 +36,25 @@ static void	count_pipelines_and_commands(t_parse_result *result, int *counts)
 	}
 }
 
+static void	print_parser_error(t_parse_result *result)
+{
+	printf("❌ Parser error: %s", result->error_msg);
+	if (result->error_line > 0 || result->error_column > 0)
+		printf(" (line %d, column %d)", result->error_line,
+			result->error_column);
+	printf("\n");
+}
+
+static void	print_ast_statistics(int *counts)
+{
+	printf("📊 AST structure:\n");
+	printf("   - Pipelines: %d\n", counts[0]);
+	printf("   - Total commands: %d\n", counts[1]);
+	if (counts[1] > counts[0])
+		printf("   - Contains pipes: YES\n");
+	printf("\n");
+}
+
 void	print_parse_result(t_parse_result *result)
 {
 	int	counts[2];
@@ -48,11 +67,7 @@ void	print_parse_result(t_parse_result *result)
 	}
 	if (result->error_msg)
 	{
-		printf("❌ Parser error: %s", result->error_msg);
-		if (result->error_line > 0 || result->error_column > 0)
-			printf(" (line %d, column %d)", result->error_line,
-				result->error_column);
-		printf("\n");
+		print_parser_error(result);
 		return ;
 	}
 	if (!result->ast)
@@ -62,11 +77,5 @@ void	print_parse_result(t_parse_result *result)
 	}
 	printf("✅ Parser successful! AST created\n");
 	count_pipelines_and_commands(result, counts);
-	printf("📊 AST structure:\n");
-	printf("   - Pipelines: %d\n", counts[0]);
-	printf("   - Total commands: %d\n", counts[1]);
-	if (counts[1] > counts[0])
-		printf("   - Contains pipes: YES\n");
-	printf("\n");
+	print_ast_statistics(counts);
 }
-

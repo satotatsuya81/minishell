@@ -45,38 +45,16 @@ static void	print_token_counts(int *counts)
 		printf("   - ASSIGNMENT tokens: %d\n", counts[3]);
 }
 
-void	print_lexer_summary(t_token_stream *stream)
+void	print_success_info(t_token_stream *stream, int token_count)
 {
-	int		token_count;
-	int		counts[4];
-	t_token	*current;
+	int	counts[4];
 
-	token_count = 0;
 	counts[0] = 0;
 	counts[1] = 0;
 	counts[2] = 0;
 	counts[3] = 0;
-	current = stream->head;
-	printf("=== Lexer Results ===\n");
-	while (current && current->type != TOKEN_EOF)
-	{
-		token_count++;
-		current = current->next;
-	}
-	if (stream->error_message)
-	{
-		printf("❌ Lexer error: %s (line %d, column %d)\n",
-			stream->error_message, stream->error_line,
-			stream->error_column);
-		printf("📊 Tokens before error: %d\n", token_count);
-	}
-	else
-	{
-		printf("✅ Lexer successful: %d tokens generated\n", token_count);
-		printf("📊 Token breakdown:\n");
-		count_token_types(stream, counts);
-		print_token_counts(counts);
-	}
-	printf("\n");
+	printf("✅ Lexer successful: %d tokens generated\n", token_count);
+	printf("📊 Token breakdown:\n");
+	count_token_types(stream, counts);
+	print_token_counts(counts);
 }
-

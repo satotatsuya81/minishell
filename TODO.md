@@ -181,6 +181,123 @@ This document tracks the development progress and remaining tasks for the minish
 - [ ] **Error Propagation**: Implement consistent error handling pattern
 - [ ] **Resource Management**: Centralize resource cleanup
 
+## Clean Architecture Refactoring
+
+### 🔥 Critical Issues (Immediate Action Required)
+
+1. **[ ] Domain Layer Purification**
+   - **Issue**: Domain layer depends on external utilities
+   - **Location**: `src/domain/env/env_initializer.c:16` includes `utils/libft_custom.h`
+   - **Action**: Move implementation to usecase layer, keep only pure entities in domain
+   - **Priority**: High
+   - **Estimated effort**: 1 day
+
+2. **[ ] Parser Layer Misplacement**
+   - **Issue**: Parser logic incorrectly placed in usecase layer
+   - **Location**: `src/usecase/parser/` → should be `src/adapters/parser/`
+   - **Action**: Move parser implementation to adapters layer
+   - **Priority**: High
+   - **Estimated effort**: 1-2 days
+
+3. **[ ] Circular Dependencies Resolution**
+   - **Issue**: Domain entities have circular references
+   - **Location**: `include/domain/env_variable.h:16` includes `domain/assignment.h`
+   - **Action**: Remove direct dependencies between domain entities
+   - **Priority**: High
+   - **Estimated effort**: 1 day
+
+### 🟡 Structural Issues (Medium Priority)
+
+4. **[ ] Layer Responsibility Separation**
+   - **Issue**: Business logic scattered across multiple layers
+   - **Locations**: Environment logic in both `src/domain/env/` and `src/usecase/builtin/`
+   - **Action**: Consolidate business logic in domain services
+   - **Priority**: Medium
+   - **Estimated effort**: 2-3 days
+
+5. **[ ] Interface Abstraction Improvement**
+   - **Issue**: Concrete implementations exposed at interface level
+   - **Location**: `include/usecase/executor/executor.h` mixes high/low level functions
+   - **Action**: Define proper abstraction interfaces for each layer
+   - **Priority**: Medium
+   - **Estimated effort**: 2 days
+
+6. **[ ] Dependency Inversion Implementation**
+   - **Issue**: High-level modules depend on low-level details
+   - **Location**: Executor directly depends on command structures
+   - **Action**: Introduce interfaces and dependency injection
+   - **Priority**: Medium
+   - **Estimated effort**: 2-3 days
+
+### 🟢 Structural Enhancements (Low Priority)
+
+7. **[ ] Infrastructure Layer Implementation**
+   - **Issue**: External dependencies not properly abstracted
+   - **Location**: Direct system calls scattered throughout codebase
+   - **Action**: Create infrastructure layer for filesystem, process management
+   - **Priority**: Low
+   - **Estimated effort**: 3-4 days
+
+8. **[ ] Testing Architecture Alignment**
+   - **Issue**: Test structure doesn't reflect Clean Architecture layers
+   - **Location**: `tests/` directory structure
+   - **Action**: Reorganize tests by architectural layers
+   - **Priority**: Low
+   - **Estimated effort**: 1-2 days
+
+### Recommended Directory Restructure
+
+**Current Problem Structure:**
+```
+src/
+├── adapters/cli/          # ✓ Correct
+├── domain/env/            # ❌ Contains implementation details
+├── usecase/parser/        # ❌ Parser should be in adapters
+├── usecase/executor/      # ❌ Mixed concerns
+└── utils/                 # ❌ Domain depends on this
+```
+
+**Target Clean Architecture:**
+```
+src/
+├── entities/              # Pure domain entities
+│   ├── token.c
+│   ├── command.c
+│   └── assignment.c
+├── domain/                # Domain services (business logic)
+│   ├── env_service.c
+│   └── command_service.c
+├── usecase/               # Application business rules
+│   ├── shell_interaction.c
+│   ├── command_execution.c
+│   └── env_management.c
+├── adapters/              # Interface adapters
+│   ├── cli/
+│   ├── parser/            # Move from usecase
+│   └── executor/          # Implementation details
+└── infrastructure/        # Frameworks & drivers
+    ├── filesystem/
+    ├── process/
+    └── terminal/
+```
+
+### Implementation Strategy
+
+**Phase 1: Critical Fixes (Week 1)**
+1. Remove domain dependencies on utilities
+2. Move parser to adapters layer
+3. Resolve circular dependencies
+
+**Phase 2: Structural Improvements (Week 2-3)**
+4. Separate business logic concerns
+5. Improve interface abstractions
+6. Implement dependency inversion
+
+**Phase 3: Complete Restructure (Week 4-5)**
+7. Implement infrastructure layer
+8. Align testing architecture
+9. Documentation updates
+
 ## Notes
 
 ### 42 Norm Compliance
@@ -207,12 +324,21 @@ tgetstr, tgoto, tputs
 
 ## Progress Tracking
 
+### Core Functionality
 - **Total Tasks**: 12 core + 2 bonus = 14 tasks
 - **Completed**: 6 tasks (43%)
 - **In Progress**: 0 tasks
 - **Remaining**: 8 core tasks (57%)
 
-**Estimated completion**: 3-4 weeks for core functionality
+### Clean Architecture Refactoring
+- **Total Tasks**: 8 refactoring tasks
+- **Critical Issues**: 3 tasks (High Priority)
+- **Structural Issues**: 3 tasks (Medium Priority)
+- **Enhancements**: 2 tasks (Low Priority)
+
+**Estimated completion**: 
+- Core functionality: 3-4 weeks
+- Clean Architecture refactoring: 4-5 weeks (can be done in parallel)
 
 ---
 
