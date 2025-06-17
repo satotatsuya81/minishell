@@ -29,6 +29,7 @@
 #include "adapters/cli/output_utils.h"
 #include "interfaces/io_interface.h"
 #include "interfaces/output_interface.h"
+#include "interfaces/process_interface.h"
 
 static void	execute_and_cleanup(t_parse_result *result, t_exec_context *ctx)
 {
@@ -107,28 +108,33 @@ int	main(int argc, char **argv, char **envp)
 	t_exec_context		*exec_ctx;
 	t_io_service		*io_service;
 	t_output_service	*output_service;
+	t_process_service	*process_service;
 	int					exit_code;
 
 	(void)argc;
 	(void)argv;
 	io_service = create_io_service();
 	output_service = create_output_service();
-	if (!io_service || !output_service)
+	process_service = create_process_service();
+	if (!io_service || !output_service || !process_service)
 	{
 		printf("Failed to create services\n");
 		destroy_io_service(io_service);
 		destroy_output_service(output_service);
+		destroy_process_service(process_service);
 		return (EXIT_FAILURE);
 	}
 	env = NULL;
 	if (envp)
 		env = env_create_from_envp(envp);
-	exec_ctx = create_exec_context(&env, io_service, output_service);
+	exec_ctx = create_exec_context(&env, io_service, output_service, 
+		process_service);
 	if (!exec_ctx)
 	{
 		printf("Failed to create execution context\n");
 		destroy_io_service(io_service);
 		destroy_output_service(output_service);
+		destroy_process_service(process_service);
 		return (EXIT_FAILURE);
 	}
 	exit_code = shell_loop(exec_ctx);
@@ -137,5 +143,6 @@ int	main(int argc, char **argv, char **envp)
 		env_free(env);
 	destroy_io_service(io_service);
 	destroy_output_service(output_service);
+	destroy_process_service(process_service);
 	return (exit_code);
 }

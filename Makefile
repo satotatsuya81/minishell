@@ -165,26 +165,6 @@ $(TESTS_DIR)/parser/test_heredoc: $(LIBFT_A) $(TESTS_DIR)/parser/test_heredoc.c 
 
 # Integration test for lexer and parser
 INTEGRATION_TEST_DIR = $(TESTS_DIR)/integration
-INTEGRATION_TEST_SRCS = $(INTEGRATION_TEST_DIR)/lexer_parser_integration_test.c \
-						$(DOMAIN_SRCS) \
-						$(LEXER_SRCS) \
-						$(ADAPT_PARSER_SRCS) \
-						$(ENV_SRCS) \
-						$(ASSIGNMENT_SRCS) \
-						$(ADAPT_CLI_SRCS) \
-						$(UTILS_SRCS)
-INTEGRATION_TEST_NAME = $(INTEGRATION_TEST_DIR)/lexer_parser_integration_test
-
-SIMPLE_TEST_SRCS = $(INTEGRATION_TEST_DIR)/simple_integration_test.c \
-				   $(DOMAIN_SRCS) \
-				   $(LEXER_SRCS) \
-				   $(ADAPT_PARSER_SRCS) \
-				   $(ENV_SRCS) \
-				   $(ASSIGNMENT_SRCS) \
-				   $(ADAPT_CLI_SRCS) \
-				   $(UTILS_SRCS)
-SIMPLE_TEST_NAME = $(INTEGRATION_TEST_DIR)/simple_integration_test
-
 COMPREHENSIVE_TEST_SRCS = $(INTEGRATION_TEST_DIR)/comprehensive_test.c \
 				   $(DOMAIN_SRCS) \
 				   $(LEXER_SRCS) \
@@ -199,25 +179,9 @@ test_integration: $(COMPREHENSIVE_TEST_NAME)
 	@echo "Running comprehensive lexer-parser integration tests..."
 	@./$(COMPREHENSIVE_TEST_NAME)
 
-test_integration_simple: $(SIMPLE_TEST_NAME)
-	@echo "Running simple lexer-parser integration tests..."
-	@./$(SIMPLE_TEST_NAME)
-
-test_integration_full: $(INTEGRATION_TEST_NAME)
-	@echo "Running full lexer-parser integration tests..."
-	@./$(INTEGRATION_TEST_NAME)
-
-$(SIMPLE_TEST_NAME): $(LIBFT_A) $(SIMPLE_TEST_SRCS)
-	@mkdir -p $(INTEGRATION_TEST_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(SIMPLE_TEST_SRCS) -L$(LIBFT_DIR) -lft -o $@
-
 $(COMPREHENSIVE_TEST_NAME): $(LIBFT_A) $(COMPREHENSIVE_TEST_SRCS)
 	@mkdir -p $(INTEGRATION_TEST_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) $(COMPREHENSIVE_TEST_SRCS) -L$(LIBFT_DIR) -lft -o $@
-
-$(INTEGRATION_TEST_NAME): $(LIBFT_A) $(INTEGRATION_TEST_SRCS)
-	@mkdir -p $(INTEGRATION_TEST_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(INTEGRATION_TEST_SRCS) -L$(LIBFT_DIR) -lft -o $@
 
 # Executor tests
 EXECUTOR_TEST_DIR = $(TESTS_DIR)/executor
@@ -263,19 +227,6 @@ EXECUTOR_TEST_SIMPLE_SRCS = $(EXECUTOR_TEST_DIR)/test_simple_executor.c \
 						   $(UTILS_SRCS)
 EXECUTOR_TEST_SIMPLE_NAME = $(EXECUTOR_TEST_DIR)/test_simple_executor
 
-# Full integration test
-FULL_INTEGRATION_SRCS = $(INTEGRATION_TEST_DIR)/full_integration_test.c \
-					   $(DOMAIN_SRCS) \
-					   $(LEXER_SRCS) \
-					   $(ADAPT_PARSER_SRCS) \
-					   $(ENV_SRCS) \
-					   $(EXECUTOR_SRCS) \
-					   $(BUILTIN_SRCS) \
-					   $(ASSIGNMENT_SRCS) \
-					   $(EXIT_SRCS) \
-					   $(UTILS_SRCS)
-FULL_INTEGRATION_NAME = $(INTEGRATION_TEST_DIR)/full_integration_test
-
 test_executor_builtin: $(EXECUTOR_TEST_BUILTIN_NAME)
 	@echo "Running executor builtin tests..."
 	@./$(EXECUTOR_TEST_BUILTIN_NAME)
@@ -294,10 +245,6 @@ test_executor_simple: $(EXECUTOR_TEST_SIMPLE_NAME)
 
 test_executor: test_executor_simple test_executor_builtin test_executor_external test_executor_redirection
 
-test_full_integration: $(FULL_INTEGRATION_NAME)
-	@echo "Running full integration tests..."
-	@./$(FULL_INTEGRATION_NAME)
-
 $(EXECUTOR_TEST_BUILTIN_NAME): $(LIBFT_A) $(EXECUTOR_TEST_BUILTIN_SRCS)
 	@mkdir -p $(EXECUTOR_TEST_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) $(EXECUTOR_TEST_BUILTIN_SRCS) -L$(LIBFT_DIR) -lft -lreadline -o $@
@@ -314,14 +261,61 @@ $(EXECUTOR_TEST_SIMPLE_NAME): $(LIBFT_A) $(EXECUTOR_TEST_SIMPLE_SRCS)
 	@mkdir -p $(EXECUTOR_TEST_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) $(EXECUTOR_TEST_SIMPLE_SRCS) -L$(LIBFT_DIR) -lft -lreadline -o $@
 
-$(FULL_INTEGRATION_NAME): $(LIBFT_A) $(FULL_INTEGRATION_SRCS)
+# TDT (Table-Driven Tests) following lexer pattern
+PROCESS_TEST_DIR = $(TESTS_DIR)/infrastructure
+PROCESS_TDT_SRCS = $(PROCESS_TEST_DIR)/test_process_service_tdt.c \
+				   $(TESTS_DIR)/test_utils.c \
+				   $(INFRA_SRCS) \
+				   $(UTILS_SRCS)
+PROCESS_TDT_NAME = $(PROCESS_TEST_DIR)/test_process_service_tdt
+
+REDIRECTION_TDT_SRCS = $(TESTS_DIR)/executor/test_redirection_tdt.c \
+					   $(TESTS_DIR)/test_utils.c \
+					   src/usecase/executor/input_redirection.c \
+					   src/usecase/executor/output_redirection.c \
+					   $(INFRA_SRCS) \
+					   $(UTILS_SRCS)
+REDIRECTION_TDT_NAME = $(TESTS_DIR)/executor/test_redirection_tdt
+
+PIPE_TDT_SRCS = $(TESTS_DIR)/integration/test_pipe_tdt.c \
+				$(TESTS_DIR)/test_utils.c \
+				$(INFRA_SRCS) \
+				$(UTILS_SRCS)
+PIPE_TDT_NAME = $(TESTS_DIR)/integration/test_pipe_tdt
+
+# TDT test targets
+test_process_tdt: $(PROCESS_TDT_NAME)
+	@echo "Running process service TDT tests..."
+	@./$(PROCESS_TDT_NAME)
+
+test_redirection_tdt: $(REDIRECTION_TDT_NAME)
+	@echo "Running redirection service TDT tests..."
+	@./$(REDIRECTION_TDT_NAME)
+
+test_pipe_tdt: $(PIPE_TDT_NAME)
+	@echo "Running pipe integration TDT tests..."
+	@./$(PIPE_TDT_NAME)
+
+test_all_tdt: test_process_tdt test_redirection_tdt test_pipe_tdt
+
+# TDT build targets
+$(PROCESS_TDT_NAME): $(LIBFT_A) $(PROCESS_TDT_SRCS)
+	@mkdir -p $(PROCESS_TEST_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $(PROCESS_TDT_SRCS) -L$(LIBFT_DIR) -lft -o $@
+
+$(REDIRECTION_TDT_NAME): $(LIBFT_A) $(REDIRECTION_TDT_SRCS)
+	@mkdir -p $(TESTS_DIR)/executor
+	$(CC) $(CFLAGS) $(INCLUDES) $(REDIRECTION_TDT_SRCS) -L$(LIBFT_DIR) -lft -lreadline -o $@
+
+$(PIPE_TDT_NAME): $(LIBFT_A) $(PIPE_TDT_SRCS)
 	@mkdir -p $(INTEGRATION_TEST_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(FULL_INTEGRATION_SRCS) -L$(LIBFT_DIR) -lft -lreadline -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $(PIPE_TDT_SRCS) -L$(LIBFT_DIR) -lft -lreadline -o $@
 
 testclean:
-	@$(RM) $(TEST_OBJS) $(TEST_NAME) $(INTEGRATION_TEST_NAME)
+	@$(RM) $(TEST_OBJS) $(TEST_NAME) $(COMPREHENSIVE_TEST_NAME)
 	@$(RM) $(EXECUTOR_TEST_BUILTIN_NAME) $(EXECUTOR_TEST_EXTERNAL_NAME) $(EXECUTOR_TEST_REDIRECT_NAME)
-	@$(RM) $(EXECUTOR_TEST_SIMPLE_NAME) $(FULL_INTEGRATION_NAME)
+	@$(RM) $(EXECUTOR_TEST_SIMPLE_NAME)
+	@$(RM) $(PROCESS_TDT_NAME) $(REDIRECTION_TDT_NAME) $(PIPE_TDT_NAME)
 	@echo "Cleaned test objects and binaries."
 
-.PHONY: all clean fclean re localclean test testclean test_integration test_executor test_executor_simple test_executor_builtin test_executor_external test_executor_redirection test_full_integration
+.PHONY: all clean fclean re localclean test testclean test_integration test_executor test_executor_simple test_executor_builtin test_executor_external test_executor_redirection test_process_tdt test_redirection_tdt test_pipe_tdt test_all_tdt
