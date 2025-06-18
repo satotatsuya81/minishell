@@ -42,12 +42,30 @@ static void	setup_output_fd(int output_fd)
 	}
 }
 
+static void	close_all_pipes(t_pipe_params *params)
+{
+	int	i;
+
+	if (!params->pipefd)
+		return ;
+	i = 0;
+	while (i < (params->cmd_count - 1) * 2)
+	{
+		if (params->pipefd[i] != params->input_fd 
+			&& params->pipefd[i] != params->output_fd)
+			close(params->pipefd[i]);
+		i++;
+	}
+}
+
 static void	execute_command_in_child(t_pipe_params *params)
 {
 	int	status;
 
+	expand_command_variables(params->cmd, params->ctx);
 	setup_input_fd(params->input_fd);
 	setup_output_fd(params->output_fd);
+	close_all_pipes(params);
 	if (params->cmd->redirects)
 		if (setup_redirections(params->cmd->redirects) != 0)
 			exit(EXIT_FAILURE);
