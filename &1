@@ -1,0 +1,37 @@
+=== Lexer Results ===
+✅ Lexer successful: 11 tokens generated
+📊 Token breakdown:
+   - WORD tokens: 7
+   - PIPE tokens: 2
+   - REDIRECT tokens: 2
+
+=== Token Details ===
+WORD: unset
+WORD: PATH\nls
+REDIRECT OUT: >
+WORD: /dev/null
+WORD: 2
+REDIRECT OUT: >
+WORD: &1
+PIPE: |
+PIPE: |
+WORD: echo
+WORD: NOTFOUND
+EOF
+
+=== Parser Results ===
+✅ Parser successful! AST created
+📊 AST structure:
+   - Pipelines: 1
+   - Total commands: 3
+   - Contains pipes: YES
+
+=== AST Details ===
+AST Debug:
+	Pipeline at 0x63ccb4991540
+	Cmds:
+		argv[0]: unset
+		argv[1]: PATH\nls
+		argv[2]: 2
+
+=== Execution ===
