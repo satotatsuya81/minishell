@@ -33,21 +33,9 @@
 
 static void	execute_and_cleanup(t_parse_result *result, t_exec_context *ctx)
 {
-	int	status;
-
 	if (result && !result->error_msg && result->ast)
 	{
-		printf("=== Execution ===\n");
-		status = execute_pipeline_list(result->ast, ctx);
-		print_execution_summary(status, ctx);
-		printf("\n");
-		if (ctx->should_exit)
-			printf("Exiting minishell...\n");
-	}
-	else
-	{
-		printf("=== Execution ===\n");
-		printf("❌ Skipped due to parsing errors\n\n");
+		execute_pipeline_list(result->ast, ctx);
 	}
 }
 
@@ -57,18 +45,7 @@ static void	process_and_print(char *line, t_exec_context *exec_ctx)
 	t_parse_result	*result;
 
 	stream = lexer(line);
-	print_lexer_summary(stream);
-	printf("=== Token Details ===\n");
-	print_tokens(stream->head);
-	printf("\n");
 	result = parse(stream);
-	print_parse_result(result);
-	if (result && result->ast)
-	{
-		printf("=== AST Details ===\n");
-		print_ast(result->ast);
-		printf("\n");
-	}
 	execute_and_cleanup(result, exec_ctx);
 	if (result)
 		free_parse_result(result);
