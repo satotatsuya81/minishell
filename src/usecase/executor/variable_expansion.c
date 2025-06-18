@@ -123,11 +123,20 @@ void	expand_command_variables(t_cmd *cmd, t_exec_context *ctx)
 	i = 0;
 	while (cmd->argv[i])
 	{
-		expanded = expand_variables(cmd->argv[i], ctx);
-		if (expanded)
+		if (cmd->argv[i][0] == '\x01')
 		{
+			expanded = ft_strdup(cmd->argv[i] + 1);
 			free(cmd->argv[i]);
 			cmd->argv[i] = expanded;
+		}
+		else
+		{
+			expanded = expand_variables(cmd->argv[i], ctx);
+			if (expanded)
+			{
+				free(cmd->argv[i]);
+				cmd->argv[i] = expanded;
+			}
 		}
 		i++;
 	}

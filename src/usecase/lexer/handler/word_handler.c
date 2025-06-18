@@ -56,8 +56,6 @@ int	handle_word_or_assignment(const char *input,
 
 	start = st->index;
 	valid_assignment = validate_assignment_first_char(input[st->index]);
-	if (valid_assignment)
-		st->index++;
 	equal_index = -1;
 	while (input[st->index] && is_word(input[st->index]))
 	{
@@ -67,12 +65,8 @@ int	handle_word_or_assignment(const char *input,
 			valid_assignment = validate_assignment((char *)input + st->index);
 		st->index++;
 	}
-	if (equal_index != -1)
-		add_token(stream, create_token(
-				TOKEN_ASSIGNMENT, &input[start], st->index - start, st));
-	else
-		add_token(stream, create_token(
-				TOKEN_WORD, &input[start], st->index - start, st));
+	add_token(stream, create_token(
+			TOKEN_WORD, &input[start], st->index - start, st));
 	st->column += (st->index - start);
 	return (EXIT_SUCCESS);
 }

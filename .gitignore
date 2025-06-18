@@ -1,3 +1,4 @@
 *.o
 *.log
 doc/
+minishell-evaluation-guide.md
