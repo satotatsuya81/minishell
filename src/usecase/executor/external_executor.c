@@ -15,9 +15,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "usecase/executor/executor.h"
+#include "usecase/signal/signal_handler.h"
 
 static int	execute_child_process(char *cmd_path, t_cmd *cmd, char **envp)
 {
+	setup_child_signal_handlers();
 	if (execve(cmd_path, cmd->argv, envp) == -1)
 	{
 		perror("execve failed");
@@ -30,11 +32,20 @@ static int	handle_parent_process(pid_t pid, char *cmd_path, char **envp)
 {
 	int	status;
 
+	ignore_signals();
 	waitpid(pid, &status, 0);
+	setup_signal_handlers();
 	free(cmd_path);
 	free_envp(envp);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
+	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGINT)
+			return (130);
+		if (WTERMSIG(status) == SIGQUIT)
+			return (131);
+	}
 	return (EXIT_FAILURE);
 }
 

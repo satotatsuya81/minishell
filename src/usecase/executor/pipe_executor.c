@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "usecase/executor/executor.h"
+#include "usecase/signal/signal_handler.h"
 
 static void	setup_input_fd(int input_fd)
 {
@@ -62,6 +63,7 @@ static void	execute_command_in_child(t_pipe_params *params)
 {
 	int	status;
 
+	setup_child_signal_handlers();
 	expand_command_variables(params->cmd, params->ctx);
 	setup_input_fd(params->input_fd);
 	setup_output_fd(params->output_fd);

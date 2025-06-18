@@ -15,6 +15,7 @@
 #include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "usecase/signal/signal_handler.h"
 #include "domain/token.h"
 #include "usecase/env/env_manager.h"
 #include "usecase/lexer/token_manager.h"
@@ -85,11 +86,17 @@ static int	shell_loop(t_exec_context *exec_ctx)
 
 	while (1)
 	{
+		g_signal_received = 0;
 		line = readline("minishell> ");
 		if (!line)
 		{
 			printf("exit\n");
 			break ;
+		}
+		if (g_signal_received == SIGINT)
+		{
+			exec_ctx->last_exit_status = 130;
+			g_signal_received = 0;
 		}
 		if (*line)
 			add_history(line);
@@ -131,6 +138,7 @@ int	main(int argc, char **argv, char **envp)
 		destroy_output_service(output_service);
 		return (EXIT_FAILURE);
 	}
+	setup_signal_handlers();
 	exit_code = shell_loop(exec_ctx);
 	free_exec_context(exec_ctx);
 	if (env)
