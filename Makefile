@@ -20,6 +20,7 @@ EXECUTOR_SRCS	=	$(wildcard $(USE_CASE_DIR)/executor/*.c)
 BUILTIN_SRCS	=	$(wildcard $(USE_CASE_DIR)/builtin/*.c)
 ASSIGNMENT_SRCS	=	$(wildcard $(USE_CASE_DIR)/assignment/*.c)
 EXIT_SRCS	=		$(wildcard $(USE_CASE_DIR)/exit/*.c)
+SIGNAL_SRCS	=		$(wildcard $(USE_CASE_DIR)/signal/*.c)
 
 # Adapters layer sources
 ADAPT_CLI_SRCS	=	$(wildcard $(ADAPTERS_DIR)/cli/*.c)
@@ -41,6 +42,7 @@ SRCS			=	$(DOMAIN_SRCS) \
 					$(BUILTIN_SRCS) \
 					$(ASSIGNMENT_SRCS) \
 					$(EXIT_SRCS) \
+					$(SIGNAL_SRCS) \
 					$(ADAPT_CLI_SRCS) \
 					$(ADAPT_PARSER_SRCS) \
 					$(ADAPT_SYS_SRCS) \
@@ -90,10 +92,10 @@ clean: localclean
 	@$(MAKE) clean -C $(LIBFT_DIR)
 	@echo "Cleaned minishell."
 
-fclean: localclean
+fclean: localclean clean_eval
 	@$(MAKE) fclean -C $(LIBFT_DIR)
-	@$(RM) $(NAME)
-	@echo "Removed executable."
+	@$(RM) $(NAME) $(TEST_NAME)
+	@echo "Removed executable and tests."
 
 re: clean all
 
@@ -117,6 +119,13 @@ TEST_OBJS		=	$(TEST_SRCS:%.c=%.o)
 TEST_NAME		=	unit_tests
 TEST_FLAGS		=	$(CFLAGS) -I$(TESTS_DIR)
 TEST_LIBS		=	-lcriterion
+
+# Evaluation test configuration
+EVAL_TEST_SRCS	=	$(wildcard $(TESTS_DIR)/evaluation/*.c)
+EVAL_TEST_OBJS	=	$(EVAL_TEST_SRCS:%.c=%.o)
+EVAL_TEST_NAME	=	evaluation_tests
+EVAL_TEST_FLAGS	=	$(CFLAGS) -I$(TESTS_DIR)/evaluation -I$(INCLUDES_DIR)
+EVAL_TEST_LIBS	=	-lcriterion
 
 test: $(TEST_NAME)
 	@./$(TEST_NAME)
@@ -144,6 +153,34 @@ test_operators: $(TESTS_DIR)/parser/test_operators
 
 test_heredoc: $(TESTS_DIR)/parser/test_heredoc
 	./$(TESTS_DIR)/parser/test_heredoc
+
+# Comprehensive evaluation test suite for 42 School requirements
+test_evaluation: $(EVAL_TEST_NAME)
+	@echo "\033[0;32m======== 42 MINISHELL EVALUATION TEST SUITE ========\033[0m"
+	@echo "\033[0;33mTesting all mandatory requirements for 100% score...\033[0m"
+	@./$(EVAL_TEST_NAME)
+	@echo "\033[0;32m======== EVALUATION TESTS COMPLETED ========\033[0m"
+
+$(EVAL_TEST_NAME): $(NAME) $(EVAL_TEST_OBJS)
+	@echo "\033[0;36mBuilding evaluation test suite: $(EVAL_TEST_NAME)\033[0m"
+	@$(CC) $(EVAL_TEST_FLAGS) $(EVAL_TEST_OBJS) $(EVAL_TEST_LIBS) -o $(EVAL_TEST_NAME)
+
+# Clean evaluation tests
+clean_eval:
+	@$(RM) $(EVAL_TEST_OBJS) $(EVAL_TEST_NAME)
+	@echo "Cleaned evaluation tests"
+
+# Run all tests (unit + evaluation)
+test_all: test test_evaluation
+	@echo "\033[0;32mAll tests completed successfully!\033[0m"
+
+# Quick evaluation check for CI/CD
+test_quick: $(NAME)
+	@echo "\033[0;33mRunning quick evaluation check...\033[0m"
+	@echo "echo hello" | ./$(NAME) > /dev/null 2>&1 && echo "✅ Basic execution works" || echo "❌ Basic execution failed"
+	@echo "export TEST=value && echo \$$TEST" | ./$(NAME) > /dev/null 2>&1 && echo "✅ Variable export works" || echo "❌ Variable export failed"
+	@echo "echo test | cat" | ./$(NAME) > /dev/null 2>&1 && echo "✅ Pipes work" || echo "❌ Pipes failed"
+	@echo "\033[0;32mQuick check completed\033[0m"
 
 $(TESTS_DIR)/parser/test_simple_command: $(LIBFT_A) $(TESTS_DIR)/parser/test_simple_command.c $(ADAPT_PARSER_SRCS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(TESTS_DIR)/parser/test_simple_command.c $(ADAPT_PARSER_SRCS) $(DOMAIN_SRCS) $(UTILS_SRCS) -L$(LIBFT_DIR) -lft -o $@

@@ -71,6 +71,7 @@ int	execute_single_command(t_cmd *cmd, t_exec_context *ctx)
 
 	if (!cmd || !cmd->argv || !cmd->argv[0] || !ctx)
 		return (EXIT_FAILURE);
+	expand_command_variables(cmd, ctx);
 	saved_stdin = dup(STDIN_FILENO);
 	saved_stdout = dup(STDOUT_FILENO);
 	if (cmd->redirects && setup_redirections_with_service(cmd->redirects, 

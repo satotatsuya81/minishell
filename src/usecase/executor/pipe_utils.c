@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "usecase/executor/executor.h"
+#include "usecase/signal/signal_handler.h"
 
 /* Count commands in pipe chain */
 int	count_commands(t_cmd *cmds)
@@ -146,6 +147,7 @@ int	wait_for_children(pid_t *pids, int cmd_count)
 	int	status;
 	int	last_status;
 
+	ignore_signals();
 	last_status = EXIT_SUCCESS;
 	i = 0;
 	while (i < cmd_count)
@@ -155,10 +157,20 @@ int	wait_for_children(pid_t *pids, int cmd_count)
 		{
 			if (WIFEXITED(status))
 				last_status = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+			{
+				if (WTERMSIG(status) == SIGINT)
+					last_status = 130;
+				else if (WTERMSIG(status) == SIGQUIT)
+					last_status = 131;
+				else
+					last_status = EXIT_FAILURE;
+			}
 			else
 				last_status = EXIT_FAILURE;
 		}
 		i++;
 	}
+	setup_signal_handlers();
 	return (last_status);
 }

@@ -44,6 +44,8 @@ typedef struct s_pipe_params
 	int				input_fd;
 	int				output_fd;
 	t_exec_context	*ctx;
+	int				*pipefd;
+	int				cmd_count;
 }	t_pipe_params;
 
 /* Command loop execution parameters */
@@ -116,6 +118,10 @@ int			handle_heredoc_redirect_with_service(const char *delimiter,
 /* Pipe handling */
 int			execute_pipe_chain(t_cmd *cmds, t_exec_context *ctx);
 int			execute_pipe_chain_with_service(t_cmd *cmds, t_exec_context *ctx);
+
+/* Variable expansion */
+char		*expand_variables(const char *str, t_exec_context *ctx);
+void		expand_command_variables(t_cmd *cmd, t_exec_context *ctx);
 
 /* Note: Utility functions declared above in "Environment and command path utilities" section */
 

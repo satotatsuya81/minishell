@@ -51,16 +51,6 @@ static void	cleanup_and_free_resources(int *pipefd, pid_t *pids, int cmd_count)
 	free(pids);
 }
 
-static int	execute_pipe_commands(t_cmd_loop_params *loop_params)
-{
-	if (execute_commands_loop(loop_params) == -1)
-	{
-		cleanup_and_free_resources(loop_params->pipefd, loop_params->pids,
-			loop_params->cmd_count);
-		return (EXIT_FAILURE);
-	}
-	return (EXIT_SUCCESS);
-}
 
 static int	finalize_pipe_execution_with_service(int *pipefd, pid_t *pids,
 	int cmd_count, t_process_service *proc_service)
@@ -128,7 +118,10 @@ int	execute_pipe_chain(t_cmd *cmds, t_exec_context *ctx)
 	loop_params.pids = pids;
 	loop_params.ctx = ctx;
 	loop_params.cmd_count = cmd_count;
-	if (execute_pipe_commands(&loop_params) == EXIT_FAILURE)
+	if (execute_commands_loop(&loop_params) == -1)
+	{
+		cleanup_and_free_resources(pipefd, pids, cmd_count);
 		return (EXIT_FAILURE);
+	}
 	return (finalize_pipe_execution(pipefd, pids, cmd_count));
 }
