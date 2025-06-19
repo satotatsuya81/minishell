@@ -1,3 +1,6 @@
 *.o
 *.log
 doc/
+minishell-evaluation-guide.md
+EVALUATION_COMMANDS.md
+SUBJECT_COMPLIANCE_REPORT.md

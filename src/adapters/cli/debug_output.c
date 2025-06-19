@@ -36,13 +36,7 @@ static void	count_token_types(t_token_stream *stream, int *counts)
 
 static void	print_token_counts(int *counts)
 {
-	printf("   - WORD tokens: %d\n", counts[0]);
-	if (counts[1] > 0)
-		printf("   - PIPE tokens: %d\n", counts[1]);
-	if (counts[2] > 0)
-		printf("   - REDIRECT tokens: %d\n", counts[2]);
-	if (counts[3] > 0)
-		printf("   - ASSIGNMENT tokens: %d\n", counts[3]);
+	(void)counts;
 }
 
 void	print_success_info(t_token_stream *stream, int token_count)
@@ -53,8 +47,7 @@ void	print_success_info(t_token_stream *stream, int token_count)
 	counts[1] = 0;
 	counts[2] = 0;
 	counts[3] = 0;
-	printf("✅ Lexer successful: %d tokens generated\n", token_count);
-	printf("📊 Token breakdown:\n");
 	count_token_types(stream, counts);
 	print_token_counts(counts);
+	(void)token_count;
 }

@@ -15,7 +15,8 @@
 
 /* Create execution context */
 t_exec_context	*create_exec_context(t_env_var **env,
-					t_io_service *io, t_output_service *out)
+					t_io_service *io, t_output_service *out,
+					t_process_service *proc)
 {
 	t_exec_context	*ctx;
 
@@ -25,6 +26,7 @@ t_exec_context	*create_exec_context(t_env_var **env,
 	ctx->env = env;
 	ctx->io_service = io;
 	ctx->output_service = out;
+	ctx->process_service = proc;
 	ctx->last_exit_status = 0;
 	ctx->should_exit = 0;
 	ctx->exit_code = 0;

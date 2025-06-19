@@ -44,8 +44,6 @@ t_connector	get_connector_type(const char *op)
 		return (CONN_AND);
 	else if (ft_strncmp(op, "||", 2) == 0)
 		return (CONN_OR);
-	else if (ft_strncmp(op, ";", 1) == 0)
-		return (CONN_SEMICOLON);
 	return (CONN_NONE);
 }
 

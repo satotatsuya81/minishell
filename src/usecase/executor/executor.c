@@ -57,10 +57,9 @@ int	execute_pipeline(t_pipeline *pipeline, t_exec_context *ctx)
 /* Execute a chain of commands connected by pipes */
 int	execute_command_chain(t_cmd *cmds, t_exec_context *ctx)
 {
-	(void)cmds;
-	(void)ctx;
-	printf("⚠️  Pipe execution not yet implemented\n");
-	return (EXIT_SUCCESS);
+	if (!cmds || !ctx)
+		return (EXIT_FAILURE);
+	return (execute_pipe_chain_with_service(cmds, ctx));
 }
 
 /* Execute a single command */
@@ -72,17 +71,21 @@ int	execute_single_command(t_cmd *cmd, t_exec_context *ctx)
 
 	if (!cmd || !cmd->argv || !cmd->argv[0] || !ctx)
 		return (EXIT_FAILURE);
+	expand_command_variables(cmd, ctx);
 	saved_stdin = dup(STDIN_FILENO);
 	saved_stdout = dup(STDOUT_FILENO);
-	if (cmd->redirects && setup_redirections(cmd->redirects) != 0)
+	if (cmd->redirects && setup_redirections_with_service(cmd->redirects, 
+			ctx->process_service) != 0)
 	{
-		restore_redirections(saved_stdin, saved_stdout);
+		ctx->process_service->close_fd(saved_stdin);
+		ctx->process_service->close_fd(saved_stdout);
 		return (EXIT_FAILURE);
 	}
 	if (is_builtin(cmd->argv[0]))
 		status = execute_builtin(cmd, ctx);
 	else
 		status = execute_external(cmd, ctx);
-	restore_redirections(saved_stdin, saved_stdout);
+	restore_redirections_with_service(saved_stdin, saved_stdout, 
+		ctx->process_service);
 	return (status);
 }

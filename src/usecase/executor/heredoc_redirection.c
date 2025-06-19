@@ -18,6 +18,7 @@
 #include "usecase/executor/executor.h"
 #include "utils/libft_custom.h"
 
+
 static int	process_heredoc_line(int pipefd, char *line, const char *delimiter)
 {
 	size_t	delimiter_len;
@@ -74,6 +75,15 @@ static int	handle_heredoc_parent(int *pipefd)
 	}
 	close(pipefd[0]);
 	return (0);
+}
+
+int	handle_heredoc_redirect_with_service(const char *delimiter, 
+	t_process_service *proc_service)
+{
+	(void)delimiter;
+	(void)proc_service;
+	printf("⚠️  Heredoc with process service not yet implemented\n");
+	return (-1);
 }
 
 int	handle_heredoc_redirect(const char *delimiter)

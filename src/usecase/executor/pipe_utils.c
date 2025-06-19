@@ -6,7 +6,7 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 00:00:00 by tatsato           #+#    #+#             */
-/*   Updated: 2025/06/16 08:35:01 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/16 22:10:31 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "usecase/executor/executor.h"
+#include "usecase/signal/signal_handler.h"
 
 /* Count commands in pipe chain */
 int	count_commands(t_cmd *cmds)
@@ -50,6 +51,29 @@ int	allocate_pipe_resources(t_cmd *cmds, int **pipefd, pid_t **pids)
 	return (cmd_count);
 }
 
+int	create_pipes_with_service(int *pipefd, int cmd_count,
+	t_process_service *proc_service)
+{
+	int					i;
+	t_pipe_info			pipe_info;
+	t_process_result	result;
+
+	i = 0;
+	while (i < cmd_count - 1)
+	{
+		result = proc_service->create_pipe(&pipe_info);
+		if (result != PROCESS_SUCCESS)
+		{
+			perror("pipe failed");
+			return (-1);
+		}
+		pipefd[i * 2] = pipe_info.read_fd;
+		pipefd[i * 2 + 1] = pipe_info.write_fd;
+		i++;
+	}
+	return (0);
+}
+
 int	create_pipes(int *pipefd, int cmd_count)
 {
 	int	i;
@@ -67,6 +91,20 @@ int	create_pipes(int *pipefd, int cmd_count)
 	return (0);
 }
 
+void	cleanup_pipes_with_service(int *pipefd, int cmd_count,
+	t_process_service *proc_service)
+{
+	int	i;
+
+	i = 0;
+	while (i < cmd_count - 1)
+	{
+		proc_service->close_fd(pipefd[i * 2]);
+		proc_service->close_fd(pipefd[i * 2 + 1]);
+		i++;
+	}
+}
+
 void	cleanup_pipes(int *pipefd, int cmd_count)
 {
 	int	i;
@@ -80,7 +118,8 @@ void	cleanup_pipes(int *pipefd, int cmd_count)
 	}
 }
 
-int	wait_for_children(pid_t *pids, int cmd_count)
+int	wait_for_children_with_service(pid_t *pids, int cmd_count,
+	t_process_service *proc_service)
 {
 	int	i;
 	int	status;
@@ -90,15 +129,48 @@ int	wait_for_children(pid_t *pids, int cmd_count)
 	i = 0;
 	while (i < cmd_count)
 	{
+		if (proc_service->wait_process(pids[i], &status) != PROCESS_SUCCESS)
+		{
+			perror("wait failed for child process");
+			return (EXIT_FAILURE);
+		}
+		if (i == cmd_count - 1)
+			last_status = status;
+		i++;
+	}
+	return (last_status);
+}
+
+int	wait_for_children(pid_t *pids, int cmd_count)
+{
+	int	i;
+	int	status;
+	int	last_status;
+
+	ignore_signals();
+	last_status = EXIT_SUCCESS;
+	i = 0;
+	while (i < cmd_count)
+	{
 		waitpid(pids[i], &status, 0);
 		if (i == cmd_count - 1)
 		{
 			if (WIFEXITED(status))
 				last_status = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+			{
+				if (WTERMSIG(status) == SIGINT)
+					last_status = 130;
+				else if (WTERMSIG(status) == SIGQUIT)
+					last_status = 131;
+				else
+					last_status = EXIT_FAILURE;
+			}
 			else
 				last_status = EXIT_FAILURE;
 		}
 		i++;
 	}
+	setup_signal_handlers();
 	return (last_status);
 }

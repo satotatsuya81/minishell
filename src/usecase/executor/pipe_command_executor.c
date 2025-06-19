@@ -19,6 +19,8 @@ static void	setup_pipe_params(t_pipe_params *pipe_params,
 {
 	pipe_params->cmd = loop_params->cmds;
 	pipe_params->ctx = loop_params->ctx;
+	pipe_params->pipefd = loop_params->pipefd;
+	pipe_params->cmd_count = loop_params->cmd_count;
 	if (i > 0)
 		pipe_params->input_fd = loop_params->pipefd[(i - 1) * 2];
 	else

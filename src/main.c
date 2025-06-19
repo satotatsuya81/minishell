@@ -15,6 +15,7 @@
 #include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "usecase/signal/signal_handler.h"
 #include "domain/token.h"
 #include "usecase/env/env_manager.h"
 #include "usecase/lexer/token_manager.h"
@@ -29,24 +30,13 @@
 #include "adapters/cli/output_utils.h"
 #include "interfaces/io_interface.h"
 #include "interfaces/output_interface.h"
+#include "interfaces/process_interface.h"
 
 static void	execute_and_cleanup(t_parse_result *result, t_exec_context *ctx)
 {
-	int	status;
-
 	if (result && !result->error_msg && result->ast)
 	{
-		printf("=== Execution ===\n");
-		status = execute_pipeline_list(result->ast, ctx);
-		print_execution_summary(status, ctx);
-		printf("\n");
-		if (ctx->should_exit)
-			printf("Exiting minishell...\n");
-	}
-	else
-	{
-		printf("=== Execution ===\n");
-		printf("❌ Skipped due to parsing errors\n\n");
+		execute_pipeline_list(result->ast, ctx);
 	}
 }
 
@@ -56,18 +46,7 @@ static void	process_and_print(char *line, t_exec_context *exec_ctx)
 	t_parse_result	*result;
 
 	stream = lexer(line);
-	print_lexer_summary(stream);
-	printf("=== Token Details ===\n");
-	print_tokens(stream->head);
-	printf("\n");
 	result = parse(stream);
-	print_parse_result(result);
-	if (result && result->ast)
-	{
-		printf("=== AST Details ===\n");
-		print_ast(result->ast);
-		printf("\n");
-	}
 	execute_and_cleanup(result, exec_ctx);
 	if (result)
 		free_parse_result(result);
@@ -85,11 +64,17 @@ static int	shell_loop(t_exec_context *exec_ctx)
 
 	while (1)
 	{
+		g_signal_received = 0;
 		line = readline("minishell> ");
 		if (!line)
 		{
 			printf("exit\n");
 			break ;
+		}
+		if (g_signal_received == SIGINT)
+		{
+			exec_ctx->last_exit_status = 130;
+			g_signal_received = 0;
 		}
 		if (*line)
 			add_history(line);
@@ -107,35 +92,42 @@ int	main(int argc, char **argv, char **envp)
 	t_exec_context		*exec_ctx;
 	t_io_service		*io_service;
 	t_output_service	*output_service;
+	t_process_service	*process_service;
 	int					exit_code;
 
 	(void)argc;
 	(void)argv;
 	io_service = create_io_service();
 	output_service = create_output_service();
-	if (!io_service || !output_service)
+	process_service = create_process_service();
+	if (!io_service || !output_service || !process_service)
 	{
 		printf("Failed to create services\n");
 		destroy_io_service(io_service);
 		destroy_output_service(output_service);
+		destroy_process_service(process_service);
 		return (EXIT_FAILURE);
 	}
 	env = NULL;
 	if (envp)
 		env = env_create_from_envp(envp);
-	exec_ctx = create_exec_context(&env, io_service, output_service);
+	exec_ctx = create_exec_context(&env, io_service, output_service, 
+		process_service);
 	if (!exec_ctx)
 	{
 		printf("Failed to create execution context\n");
 		destroy_io_service(io_service);
 		destroy_output_service(output_service);
+		destroy_process_service(process_service);
 		return (EXIT_FAILURE);
 	}
+	setup_signal_handlers();
 	exit_code = shell_loop(exec_ctx);
 	free_exec_context(exec_ctx);
 	if (env)
 		env_free(env);
 	destroy_io_service(io_service);
 	destroy_output_service(output_service);
+	destroy_process_service(process_service);
 	return (exit_code);
 }
