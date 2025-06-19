@@ -6,7 +6,7 @@
 /*   By: tatsato <tatsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/06 00:00:00 by tatsato           #+#    #+#             */
-/*   Updated: 2025/06/16 08:34:26 by tatsato          ###   ########.fr       */
+/*   Updated: 2025/06/19 13:41:47 by tatsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,10 @@ int	execute_single_command(t_cmd *cmd, t_exec_context *ctx)
 
 	if (!cmd || !cmd->argv || !cmd->argv[0] || !ctx)
 		return (EXIT_FAILURE);
+	expand_command_variables(cmd, ctx);
 	saved_stdin = dup(STDIN_FILENO);
 	saved_stdout = dup(STDOUT_FILENO);
-	if (cmd->redirects && setup_redirections_with_service(cmd->redirects, 
+	if (cmd->redirects && setup_redirections_with_service(cmd->redirects,
 			ctx->process_service) != 0)
 	{
 		ctx->process_service->close_fd(saved_stdin);
@@ -84,7 +85,7 @@ int	execute_single_command(t_cmd *cmd, t_exec_context *ctx)
 		status = execute_builtin(cmd, ctx);
 	else
 		status = execute_external(cmd, ctx);
-	restore_redirections_with_service(saved_stdin, saved_stdout, 
+	restore_redirections_with_service(saved_stdin, saved_stdout,
 		ctx->process_service);
 	return (status);
 }

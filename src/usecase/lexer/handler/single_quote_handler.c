@@ -23,7 +23,9 @@ int	is_single_quote(char c)
 int	handle_single_quote(
 	const char *input, t_lexer_state *st, t_token_stream *stream)
 {
-	int	start;
+	int		start;
+	char	*quoted_content;
+	char	*marked_content;
 
 	st->index++;
 	st->column++;
@@ -42,8 +44,12 @@ int	handle_single_quote(
 		stream->error_column = st->column;
 		return (-1);
 	}
-	add_token(stream,
-		create_token(TOKEN_WORD, &input[start], st->index - start, st));
+	quoted_content = ft_strndup(&input[start], st->index - start);
+	marked_content = ft_strjoin("\x01", quoted_content);
+	free(quoted_content);
+	add_token(stream, create_token(TOKEN_WORD, marked_content, 
+		ft_strlen(marked_content), st));
+	free(marked_content);
 	st->index++;
 	st->column++;
 	return (EXIT_SUCCESS);

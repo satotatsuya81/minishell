@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make test_all_new:*)",
+      "Bash(make:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(./test_pipe)",
+      "Bash(./test_redirection)",
+      "Bash(./test_operators)",
+      "Bash(./test_heredoc)",
+      "Bash(./test_quote_handling)",
+      "Bash(./test_process_service_tdt)",
+      "Bash(./test_redirection_tdt)",
+      "Bash(./test_pipe_tdt)",
+      "Bash(./test_simple_executor)",
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(git restore:*)"
+    ],
+    "deny": []
+  }
+}

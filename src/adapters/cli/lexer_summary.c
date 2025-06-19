@@ -31,21 +31,16 @@ static int	count_total_tokens(t_token_stream *stream)
 
 static void	print_error_info(t_token_stream *stream, int token_count)
 {
-	printf("❌ Lexer error: %s (line %d, column %d)\n",
-		stream->error_message, stream->error_line,
-		stream->error_column);
-	printf("📊 Tokens before error: %d\n", token_count);
+	(void)stream;
+	(void)token_count;
 }
 
 void	print_lexer_summary(t_token_stream *stream)
 {
 	int	token_count;
 
-	printf("=== Lexer Results ===\n");
 	token_count = count_total_tokens(stream);
 	if (stream->error_message)
 		print_error_info(stream, token_count);
-	else
-		print_success_info(stream, token_count);
-	printf("\n");
+	(void)token_count;
 }
