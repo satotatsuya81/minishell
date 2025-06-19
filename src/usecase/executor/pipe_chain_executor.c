@@ -92,7 +92,7 @@ int	execute_pipe_chain_with_service(t_cmd *cmds, t_exec_context *ctx)
 	loop_params.pids = pids;
 	loop_params.ctx = ctx;
 	loop_params.cmd_count = cmd_count;
-	if (execute_pipe_commands(&loop_params) == EXIT_FAILURE)
+	if (execute_commands_loop(&loop_params) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	return (finalize_pipe_execution_with_service(pipefd, pids, cmd_count,
 			ctx->process_service));
