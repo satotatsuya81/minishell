@@ -10,12 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <sys/wait.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "usecase/executor/executor.h"
 #include "usecase/signal/signal_handler.h"
+#include "interfaces/process_interface.h"
 
 /* Count commands in pipe chain */
 int	count_commands(t_cmd *cmds)
@@ -74,21 +73,18 @@ int	create_pipes_with_service(int *pipefd, int cmd_count,
 	return (0);
 }
 
+/* Deprecated - use create_pipes_with_service with exec context instead */
 int	create_pipes(int *pipefd, int cmd_count)
 {
-	int	i;
+	t_process_service	*proc_service;
+	int					result;
 
-	i = 0;
-	while (i < cmd_count - 1)
-	{
-		if (pipe(pipefd + i * 2) == -1)
-		{
-			perror("pipe failed");
-			return (-1);
-		}
-		i++;
-	}
-	return (0);
+	proc_service = create_process_service();
+	if (!proc_service)
+		return (-1);
+	result = create_pipes_with_service(pipefd, cmd_count, proc_service);
+	destroy_process_service(proc_service);
+	return (result);
 }
 
 void	cleanup_pipes_with_service(int *pipefd, int cmd_count,
@@ -105,17 +101,16 @@ void	cleanup_pipes_with_service(int *pipefd, int cmd_count,
 	}
 }
 
+/* Deprecated - use cleanup_pipes_with_service with exec context instead */
 void	cleanup_pipes(int *pipefd, int cmd_count)
 {
-	int	i;
+	t_process_service	*proc_service;
 
-	i = 0;
-	while (i < cmd_count - 1)
-	{
-		close(pipefd[i * 2]);
-		close(pipefd[i * 2 + 1]);
-		i++;
-	}
+	proc_service = create_process_service();
+	if (!proc_service)
+		return ;
+	cleanup_pipes_with_service(pipefd, cmd_count, proc_service);
+	destroy_process_service(proc_service);
 }
 
 int	wait_for_children_with_service(pid_t *pids, int cmd_count,
@@ -141,36 +136,16 @@ int	wait_for_children_with_service(pid_t *pids, int cmd_count,
 	return (last_status);
 }
 
+/* Deprecated - use wait_for_children_with_service with exec context instead */
 int	wait_for_children(pid_t *pids, int cmd_count)
 {
-	int	i;
-	int	status;
-	int	last_status;
+	t_process_service	*proc_service;
+	int					result;
 
-	ignore_signals();
-	last_status = EXIT_SUCCESS;
-	i = 0;
-	while (i < cmd_count)
-	{
-		waitpid(pids[i], &status, 0);
-		if (i == cmd_count - 1)
-		{
-			if (WIFEXITED(status))
-				last_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-			{
-				if (WTERMSIG(status) == SIGINT)
-					last_status = 130;
-				else if (WTERMSIG(status) == SIGQUIT)
-					last_status = 131;
-				else
-					last_status = EXIT_FAILURE;
-			}
-			else
-				last_status = EXIT_FAILURE;
-		}
-		i++;
-	}
-	setup_signal_handlers();
-	return (last_status);
+	proc_service = create_process_service();
+	if (!proc_service)
+		return (EXIT_FAILURE);
+	result = wait_for_children_with_service(pids, cmd_count, proc_service);
+	destroy_process_service(proc_service);
+	return (result);
 }
